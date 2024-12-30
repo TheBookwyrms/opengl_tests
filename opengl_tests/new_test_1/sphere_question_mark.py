@@ -5,6 +5,8 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 import numpy as np
+import matplotlib.pyplot as plt
+import time
 
 class sphere:
     def __init__(self, radius=1):
@@ -23,7 +25,7 @@ class sphere:
         '''
         self.positions = []
         deg = 360
-        num_points = 10
+        num_points = 36
         deg_per_point = deg//num_points
         for theta in range(deg//deg_per_point):
             theta*=deg_per_point
@@ -32,6 +34,12 @@ class sphere:
             pos = [np.round(x_pos, 3), np.round(y_pos, 3), 0.0]
             self.positions.append(pos)
 
+        x, y = [], []
+        for i in self.positions:
+            x.append(i[0])
+            y.append(i[1])
+        plt.scatter(x, y)
+        #plt.show()
 
         self.vertex_count = len(self.positions)
         vertices = np.array(self.positions, dtype=np.float32)

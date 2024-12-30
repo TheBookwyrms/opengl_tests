@@ -8,12 +8,12 @@ import numpy as np
 
 from opengl_tests.new_test_1.check_key_presses import *
 from opengl_tests.new_test_1.objects_on_screen import *
-from opengl_tests.new_test_1.from_ import *
+from opengl_tests.new_test_1.from_elsewhere import *
 from opengl_tests.new_test_1.sphere_question_mark import *
 
 class window_test_with_openGL:
     def __init__(self):
-        self.angle_x, self.angle_y, self.angle_z = 0, 15, 0 # degrees?
+        self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees?
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.zoom = 10
 
