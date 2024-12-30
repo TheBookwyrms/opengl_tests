@@ -79,7 +79,7 @@ class window_test_with_openGL:
             self.angle_x += dy * self.angle_sensitivity * self.zoom
             self.angle_y += dx * self.angle_sensitivity * self.zoom
 
-            self.last_x, self.last_y = xpos, ypos
+        self.last_x, self.last_y = xpos, ypos
     
     def mouse_callbacks(self, window, button, action, mods):
         if action == glfw.PRESS:
