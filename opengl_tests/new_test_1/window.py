@@ -13,11 +13,11 @@ from opengl_tests.new_test_1.sphere_question_mark import *
 
 class window_test_with_openGL:
     def __init__(self):
-        self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees?
+        self.angle_x, self.angle_y, self.angle_z = 0, 45, 0 # degrees?
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.zoom = 10
         
-        self.width, self.height = 500, 500
+        self.width, self.height = 600, 500
         self.aspect_ratio = self.width/self.height
 
     
@@ -73,7 +73,7 @@ class window_test_with_openGL:
 
         glClearColor(0.2, 0.2, 0.2, 1)
         glEnable(GL_DEPTH_TEST)
-        test = A()
+        #test = A()
         test2 = sphere(radius=3)
 
 
