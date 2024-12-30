@@ -25,7 +25,7 @@ class sphere:
         '''
         self.positions = []
         deg = 360
-        num_points = 36
+        num_points = 360
         deg_per_point = deg//num_points
         for theta in range(deg//deg_per_point):
             theta*=deg_per_point
