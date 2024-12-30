@@ -13,7 +13,7 @@ from opengl_tests.new_test_1.sphere_question_mark import *
 
 class window_test_with_openGL:
     def __init__(self):
-        self.angle_x, self.angle_y, self.angle_z = 0, 45, 0 # degrees?
+        self.angle_x, self.angle_y, self.angle_z = 0, 0, 45 # degrees?
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
         self.zoom = 10
@@ -70,8 +70,6 @@ class window_test_with_openGL:
             dy = ypos - self.last_y
             self.pan_x += dx * self.pan_sensitivity * self.zoom
             self.pan_y -= dy * self.pan_sensitivity * self.zoom
-
-            self.last_x, self.last_y = xpos, ypos
 
         if self.angling:
             dx = xpos - self.last_x

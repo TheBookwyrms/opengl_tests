@@ -27,42 +27,28 @@ class sphere:
         #def radius_coords_per_height(radius, height):
         self.positions = []
 
-        def positions_per_radius(r, h):
+        def circumferences(r, h):
             degrees = np.linspace(0, 360, num=360)
             for d in degrees:
-                pos = [r*np.cos(np.radians(d)), r*np.sin(np.radians(d)), h]
-                self.positions.append(pos)
+                x_circ = [r*np.cos(np.radians(d)), r*np.sin(np.radians(d)), h]
+                y_circ = [h-radius, r*np.cos(np.radians(d)), r*np.sin(np.radians(d))+radius]
+                z_circ = [r*np.cos(np.radians(d)), h-radius, r*np.sin(np.radians(d))+radius]
+                self.positions.append(x_circ)
+                self.positions.append(y_circ)
+                self.positions.append(z_circ)
 
         def radius_per_height(radius):
             heights = np.linspace(0, 2*radius, num=10)
             for h in heights:
                 h2 = np.abs(h)
                 r_small = np.sqrt(h2*(2*radius-h2))
-                print(r_small, h)
-                positions_per_radius(r_small, h)
+                circumferences(r_small, h)
         
         radius_per_height(radius)
 
 
-
-            # deg = 360
-            # num_points = 360
-            # deg_per_point = deg//num_points
-            # for theta in range(deg//deg_per_point):
-            #     theta*=deg_per_point
-            #     x_pos = radius*np.cos(np.radians(theta))
-            #     y_pos = radius*np.sin(np.radians(theta))
-            #     pos = [np.round(x_pos, 3), np.round(y_pos, 3), 0.0]
-            #     self.positions.append(pos)
-
-        #radius(radius)
-            
-
-
-
         self.vertex_count = len(self.positions)
         vertices = np.array(self.positions, dtype=np.float32)
-        print(vertices)
 
         self.vao = glGenVertexArrays(1)
         glBindVertexArray(self.vao)
