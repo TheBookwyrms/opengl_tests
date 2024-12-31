@@ -132,7 +132,7 @@ class window_test_with_openGL:
                 r = np.random.randint(2, 3)-np.random.random()
                 while r <= 0.1:
                     r += 0.2
-                pos_range = list(range(-40, 40, 3))
+                pos_range = list(range(-39, 41, 7))
                 ijk = sphere(
                     radius=r,
                     #x_i=np.random.randint(-40, 40)-np.random.random(),
@@ -143,10 +143,11 @@ class window_test_with_openGL:
                     z_i=np.random.choice(pos_range),
                     )
                 #ijk.m *= np.random.randint(1, 5)
+                v_s = np.array(list(range(-100, 100, 14)))/100
                 ijk.curr_v = np.array([
-                    np.random.randint(-1, 1),
-                    np.random.randint(-1, 1),
-                    np.random.randint(-1, 1),
+                     np.random.choice(v_s),
+                     np.random.choice(v_s),
+                     np.random.choice(v_s),
                 ])
                 planet_renders.append(ijk)
         planet_maker()
@@ -163,7 +164,7 @@ class window_test_with_openGL:
             self.update_camera()
 
 
-            # Euler integration
+            # acceleration calculations
             for planet in planet_renders:
                 for index, other in enumerate(planet_renders):
                     if planet == other:
@@ -182,9 +183,18 @@ class window_test_with_openGL:
                         Fa = dist_vec / dist_vec_mag * Fg
                         planet.next_a += Fa
 
+
+                # Euler integration
                 planet.next_a /= planet.m
-                planet.next_v = planet.next_a * dt + planet.curr_v
+                planet.next_v = planet.curr_a * dt + planet.curr_v
                 planet.next_s = planet.next_v * dt + planet.curr_s
+
+                # # Verlet integration
+                # print(f'prev: {planet.prev_s}, {type(planet.prev_s)}')
+                # print(f'current: {planet.curr_s}, {type(planet.curr_s)}')
+                # print(f'next: {planet.next_s}, {type(planet.next_s)}')
+                # print()
+                # planet.next_s = 2*planet.curr_s - planet.prev_s + planet.curr_a * dt**2
 
             
 
@@ -197,7 +207,7 @@ class window_test_with_openGL:
                 i.curr_s = i.next_s
                 i.curr_v = i.next_v
                 i.curr_a = i.next_a
-                black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = ((0, 0, 0),)*3
+                black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = (np.array([0, 0, 0]),)*3
                 i.update_vbo()
 
             xyz_axis.draw()
