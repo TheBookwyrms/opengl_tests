@@ -106,7 +106,7 @@ class window_test_with_openGL:
                 self.done = True
 
 
-    def main(self, G=0.066743):
+    def main(self, G=0.106743):
         if not glfw.init():
             return
         
@@ -118,14 +118,12 @@ class window_test_with_openGL:
         xyz_axis = axes()
 
         planet_renders = []
-        planet_masses = []
 
         black_hole = sphere(radius=2,
                             x_c=[0,0,0],
                             y_c=[0,0,0],
                             z_c=[0,0,0])
         black_hole.m=800
-        planet_masses.append(black_hole.m)
         planet_renders.append(black_hole)
 
         def planet_maker():
@@ -134,11 +132,15 @@ class window_test_with_openGL:
                 r = np.random.randint(2, 3)-np.random.random()
                 while r <= 0.1:
                     r += 0.2
+                pos_range = list(range(-40, 40, 3))
                 ijk = sphere(
                     radius=r,
-                    x_i=np.random.randint(-40, 40)-np.random.random(),
-                    y_i=np.random.randint(-40, 40)-np.random.random(),
-                    z_i=np.random.randint(-40, 40)-np.random.random(),
+                    #x_i=np.random.randint(-40, 40)-np.random.random(),
+                    #y_i=np.random.randint(-40, 40)-np.random.random(),
+                    #z_i=np.random.randint(-40, 40)-np.random.random(),
+                    x_i=np.random.choice(pos_range),
+                    y_i=np.random.choice(pos_range),
+                    z_i=np.random.choice(pos_range),
                     )
                 #ijk.m *= np.random.randint(1, 5)
                 ijk.curr_v = np.array([
@@ -147,8 +149,6 @@ class window_test_with_openGL:
                     np.random.randint(-1, 1),
                 ])
                 planet_renders.append(ijk)
-                planet_masses.append(ijk.m)
-
         planet_maker()
         
         dt = 0
@@ -161,13 +161,9 @@ class window_test_with_openGL:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
             self.update_camera()
-            positions = []
-            velocities = []
-            for i in planet_renders:
-                positions.append(i.curr_s)
-                velocities.append(i.curr_v)
 
-            new_positions = []
+
+            # Euler integration
             for planet in planet_renders:
                 for index, other in enumerate(planet_renders):
                     if planet == other:
@@ -184,14 +180,11 @@ class window_test_with_openGL:
                     if planet.m != 0:
                         Fg = G * planet.m * other.m / (dist_vec_mag**2)
                         Fa = dist_vec / dist_vec_mag * Fg
-                        print(Fa)
                         planet.next_a += Fa
 
                 planet.next_a /= planet.m
                 planet.next_v = planet.next_a * dt + planet.curr_v
                 planet.next_s = planet.next_v * dt + planet.curr_s
-
-                    #print(planet.curr_a, planet.next_a)
 
             
 
