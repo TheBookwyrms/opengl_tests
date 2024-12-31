@@ -15,17 +15,14 @@ class axes:
         # z = blue
         # x, y, z, r, g, b
         vertices = np.array([
-             [100, 0.1, 0.1, 1.0, 0.0, 0.0],
-            [0.1, 0.0, 0.1, 1.0, 0.0, 0.0],
-            [0.0, 0.1, 0.0, 1.0, 0.0, 0.0],
+            [100, 0.0, 0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
 
-            [0.0, 0.1, 0.0, 0.0, 1.0, 0.0],
-             [0.1, 100, 0.1, 0.0, 1.0, 0.0],
-            [0.1, 0.0, 0.1, 0.0, 1.0, 0.0],
+            [0.0, 100, 0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
 
-            [0.1, 0.0, 0.1, 0.0, 0.0, 1.0],
-            [0.0, 0.1, 0.0, 0.0, 1.0, 1.0],
-             [0.1, 0.1, 100, 0.0, 0.0, 1.0]
+            [0.0, 0.0, 0.0, 0.0, 1.0, 1.0],
+            [0.0, 0.0, 100, 0.0, 0.0, 1.0]
         ])
         self.data = np.array(vertices, dtype=np.float32)
 
@@ -39,7 +36,7 @@ class axes:
         n_per_vertice = 3
         n_per_colour = 3
         stride = self.data.itemsize*6
-        n = 9
+        n = 6
 
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
 
@@ -55,7 +52,7 @@ class axes:
 
         # draw VBO
         glPointSize(3)
-        glDrawArrays(GL_TRIANGLES, 0, n)
+        glDrawArrays(GL_LINES, 0, n)
 
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_COLOR_ARRAY)
