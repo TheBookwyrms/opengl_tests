@@ -10,17 +10,19 @@ from opengl_tests.new_test_1.check_key_presses import *
 from opengl_tests.new_test_1.objects_on_screen import *
 from opengl_tests.new_test_1.from_elsewhere import *
 from opengl_tests.new_test_1.sphere_question_mark import *
+from opengl_tests.new_test_1.xyz_axis import *
+import time
 
 class window_test_with_openGL:
     def __init__(self):
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 45 # degrees?
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
-        self.zoom = 10
+        self.zoom = 20
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
         
-        self.width, self.height = 600, 500
+        self.width, self.height = 1924, 1028
         self.aspect_ratio = self.width/self.height
 
         self.panning, self.angling = False, False
@@ -63,6 +65,11 @@ class window_test_with_openGL:
         glfw.set_key_callback(window, self.key_callbacks)
         glfw.set_mouse_button_callback(window, self.mouse_callbacks)
         glfw.set_cursor_pos_callback(window, self.cursor_pos_callbacks)
+        glfw.set_scroll_callback(window, self.scroll_callbacks)
+
+    def scroll_callbacks(self, window, xoffset, yoffset):
+        if self.zoom-yoffset != 0:
+            self.zoom -= yoffset
     
     def cursor_pos_callbacks(self, window, xpos, ypos):
         if self.panning:
@@ -106,24 +113,68 @@ class window_test_with_openGL:
 
         glClearColor(0.2, 0.2, 0.2, 1)
         glEnable(GL_DEPTH_TEST)
-        #test = A()
-        test2 = sphere(radius=3)
 
+        
+        xyz_axis = axes()
+        renders = []
+
+        planets_identifiers = [0]
+        planet_masses = []
+
+        def planet_maker():
+            id = 1
+            num_planets = np.random.randint(2, 10)
+            for ijk in range(num_planets):
+                ijk = sphere(
+                    radius=np.random.randint(2, 5)-np.random.random(),
+                    x_i=np.random.randint(-18, 18)-np.random.random(),
+                    y_i=np.random.randint(-18, 18)-np.random.random(),
+                    z_i=np.random.randint(-18, 18)-np.random.random(),
+                    id = id)
+                renders.append(ijk)
+                planets_identifiers.append(id)
+                planet_masses.append(ijk.m)
+                id += 1
+
+        planet_maker()
+        
+        dt = 0
+        start = time.time()
+        end = 0
         self.done = False
+        black_hole = sphere(radius=2,
+                            id=1024)
+        black_hole.m=2
+        planet_masses.append(black_hole.m)
+        planets_identifiers.append(black_hole.id)
+        renders.append(black_hole)
 
         while not self.done:
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
             self.update_camera()
+            positions = []
+            velocities = []
+            for i in renders:
+                positions.append(i.curr_s)
+                velocities.append(i.curr_v)
 
-            #break_loop = check_keys(window)
-            #if break_loop:
-            #    break
+            new_positions = []
+            for i in renders:
+                i.update(planets_identifiers, planet_masses, positions, velocities, dt)
 
-            test2.draw()
-            #test.draw()
-            #on_screen(window)
+            for i in renders:
+                i.draw()
+                i.prev_s = i.curr_s
+                i.curr_s = i.next_s
+                i.curr_v = i.next_v
+                i.curr_a = i.next_a
+                i.update_vbo()
 
+            xyz_axis.draw()
+            end = time.time()
+            dt = end-start
+            start = end
             glfw.swap_buffers(window)
             glfw.poll_events()
