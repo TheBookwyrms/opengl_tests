@@ -7,8 +7,8 @@ from OpenGL.GLU import *
 import numpy as np
 
 class sphere:
-    def __init__(self, radius=1, x_i=0, y_i=0, z_i=0, id=np.random.randint(1,1024)):
-        self.build_sphere_coords(radius, x_i, y_i, z_i)
+    def __init__(self, radius=1, x_i=0, y_i=0, z_i=0, x_c=[1,0,0], y_c=[0,1,0], z_c=[0,0,1]):
+        self.build_sphere_coords(radius, x_i, y_i, z_i, x_c, y_c, z_c)
 
         self.vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
@@ -17,7 +17,7 @@ class sphere:
 
 
         self.radius = radius
-        self.m = (np.random.randint(2, 5) - np.random.random()) * radius
+        self.m = (np.random.randint(3, 8) - np.random.random()) * radius
         self.prev_s = np.array([x_i, y_i, z_i], dtype=np.float32)
         self.curr_s = np.array([x_i, y_i, z_i], dtype=np.float32)
         self.next_s = np.array([x_i, y_i, z_i], dtype=np.float32)
@@ -26,9 +26,7 @@ class sphere:
         self.curr_a = np.array([0, 0, 0], dtype=np.float32)
         self.next_a = np.array([0, 0, 0], dtype=np.float32)
 
-        self.id = id
-
-    def build_sphere_coords(self, radius, x, y, z):
+    def build_sphere_coords(self, radius, x, y, z, xc, yc, zc):
         heights = np.linspace(0, 2*radius, num=10)    
         degrees = np.linspace(0, 360, num=60)
         self.positions = []
@@ -54,9 +52,9 @@ class sphere:
                 self.positions.append(x_circ)
                 self.positions.append(y_circ)
                 self.positions.append(z_circ)
-                self.colours.append([1, 0, 0])
-                self.colours.append([0, 1, 0])
-                self.colours.append([0, 0, 1])
+                self.colours.append([xc[0], xc[1], xc[2]])
+                self.colours.append([yc[0], yc[1], yc[2]])
+                self.colours.append([zc[0], zc[1], zc[2]])
 
         vertices = np.array(self.positions, dtype=np.float32)
         self.vertices = vertices
@@ -66,7 +64,7 @@ class sphere:
         data[:, 3:] = colours
         self.data = data
 
-    def update(self, all_id_s, all_masses, all_positions, velocities, dt, G=1):
+    def update(self, all_masses, all_positions, velocities, dt, G=1):
         
         '''
         Euler integration:
@@ -93,23 +91,23 @@ class sphere:
         #next a based on gravity
 
 
-        # for i in range(0, len(all_masses)):
-        #     for j in range(0, len(all_masses)):
-        #         if j == i:
-        #             continue
-        #         s_i, s_j = all_positions[i], all_positions[j]
-        #         m_i, m_j = all_masses[i], all_masses[j]
+        for i in range(0, len(all_masses)):
+            for j in range(0, len(all_masses)):
+                if j == i:
+                    continue
+                s_i, s_j = all_positions[i], all_positions[j]
+                m_i, m_j = all_masses[i], all_masses[j]
 
-        #         ds = s_j-s_i
-        #         d = np.linalg.norm(ds)
-        #         if d < 0.05:
-        #             d = 0.05
-        #         self.next_a = G * m_j * ds / d**3
-        #         print(self.next_a)
+                ds = s_j-s_i
+                d = np.linalg.norm(ds)
+                if d < 0.05:
+                    d = 0.05
+                self.next_a = G * m_j * ds / d**3
+                print(self.next_a)
 
-        # self.next_v = self.curr_a * dt + self.curr_v
-        # self.next_s = self.curr_s * dt + self.curr_v
-        # print(self.curr_s)
+        self.next_v = self.curr_a * dt + self.curr_v
+        self.next_s = self.curr_s * dt + self.curr_v
+        print(self.curr_s)
 
 
 
@@ -123,21 +121,24 @@ class sphere:
         # self.next_a = G * other_masses / other_r_squared
 
 
-        # my test of verlet integration - hopefully
-        # probably didn't work
-        other_masses = 0
-        other_r_squared = np.array([0.0, 0.0, 0.0], dtype=np.float32)
-        #print(all_id_s, all_masses, all_positions)
-        for imp in zip(all_id_s, all_masses, all_positions):
-            #print(imp[0], self.id)
-            if (imp[0] != self.id) and (imp[0] != 0):
-                other_masses += imp[1] if imp[1] != self.m else 0
-                other_r_squared += (imp[2]-self.curr_s)**2 if (imp[2]!=self.curr_s).all() else 0
+        # # my test of verlet integration - hopefully
+        # # probably didn't work
+        # other_masses = 0
+        # other_r_squared = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+        # #print(all_id_s, all_masses, all_positions)
+        # for imp in zip(all_id_s, all_masses, all_positions):
+        #     #print(imp[0], self.id)
+        #     if (imp[0] != self.id) and (imp[0] != 0):
+        #         other_masses += imp[1] if imp[1] != self.m else 0
+        #         other_r_squared += (imp[2]-self.curr_s)**2 if (imp[2]!=self.curr_s).all() else 0
 
-        self.next_s = 2*self.curr_s - self.prev_s + G*other_masses*dt**2/other_r_squared
+        # self.next_s = 2*self.curr_s - self.prev_s + G*other_masses*dt**2/other_r_squared
 
     def update_vbo(self):
-        self.build_sphere_coords(self.radius, self.curr_s[0], self.curr_s[1], self.curr_s[2])
+        for i in range(len(self.data)):
+            self.data[i, 0] = self.data[i, 0] - self.prev_s[0] + self.curr_s[0]
+            self.data[i, 1] = self.data[i, 1] - self.prev_s[1] + self.curr_s[1]
+            self.data[i, 2] = self.data[i, 2] - self.prev_s[2] + self.curr_s[2]
 
         self.vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)

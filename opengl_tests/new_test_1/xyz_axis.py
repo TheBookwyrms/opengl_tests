@@ -31,22 +31,9 @@ class axes:
 
         self.vertex_count = int(len(self.data)/6)
 
-        self.curr_s = None
-        self.prev_s = None
-        self.next_s = None
-        self.curr_v, self.next_v = (None,)*2
-        self.curr_a, self.next_a = (None,)*2
-        self.m = None
-
         self.vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
         glBufferData(GL_ARRAY_BUFFER, self.data.nbytes, self.data, GL_DYNAMIC_DRAW)
-
-    def update(self, _, __, ___, ____, _____):
-        pass
-
-    def update_vbo(self):
-        pass
     
     def draw(self):
         n_per_vertice = 3
