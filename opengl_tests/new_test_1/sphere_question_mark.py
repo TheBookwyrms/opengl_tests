@@ -26,8 +26,14 @@ class sphere:
         self.curr_a = np.array([0, 0, 0], dtype=np.float32)
         self.next_a = np.array([0, 0, 0], dtype=np.float32)
 
+        self.trail_s = np.array(([x_i, y_i, z_i, 1, 1, 1],)*512, dtype=np.float32)
+        self.trail_vbo = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
+        glBufferData(GL_ARRAY_BUFFER, self.trail_s.nbytes, self.trail_s, GL_DYNAMIC_DRAW)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
     def build_sphere_coords(self, radius, x, y, z, xc, yc, zc):
-        heights = np.linspace(0, 2*radius, num=10)    
+        heights = np.linspace(0, 2*radius, num=10)
         degrees = np.linspace(0, 360, num=60)
         self.positions = []
         self.colours = []
@@ -64,76 +70,6 @@ class sphere:
         data[:, 3:] = colours
         self.data = data
 
-    def update(self, all_masses, all_positions, velocities, dt, G=1):
-        
-        '''
-        Euler integration:
-        mg = fg = GmM/r**2
-        g = GM/r**2, M of other planet
-        r**2 = (x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2
-        a = GM / ((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
-        s2 = s1 + v1t + 0.5at**2
-        at+v1 = v2
-
-        Verlet integration:
-        mg = fg = GmM/r**2
-        g = GM/r**2, M of other planet
-        r**2 = (x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2
-        x(t+Δt)=2x(t)-x(t-Δt)+a(t)Δt2
-        x2 = future, x1 = current, x0 = previous
-        x2 = 2x1 - x0 + at**2
-        x2 = 2x1 - x0 + (GM / ((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2))t**2
-        '''
-
-        # euler integration / hopefully
-        # next pos based on curr v
-        # next v based on curr a
-        #next a based on gravity
-
-
-        for i in range(0, len(all_masses)):
-            for j in range(0, len(all_masses)):
-                if j == i:
-                    continue
-                s_i, s_j = all_positions[i], all_positions[j]
-                m_i, m_j = all_masses[i], all_masses[j]
-
-                ds = s_j-s_i
-                d = np.linalg.norm(ds)
-                if d < 0.05:
-                    d = 0.05
-                self.next_a = G * m_j * ds / d**3
-                print(self.next_a)
-
-        self.next_v = self.curr_a * dt + self.curr_v
-        self.next_s = self.curr_s * dt + self.curr_v
-        print(self.curr_s)
-
-
-
-        # other_masses = 0
-        # other_r_squared = np.array([0.0, 0.0, 0.0], dtype=np.float32)
-        # for imp in zip(all_id_s, all_masses, all_positions):
-        #     if (imp[0] != self.id) and (imp[0] != 0):
-        #         other_masses += imp[1] if imp[1] != self.m else 0
-        #         other_r_squared += (imp[2]-self.curr_s)**2 if (imp[2]!=self.curr_s).all() else 0
-
-        # self.next_a = G * other_masses / other_r_squared
-
-
-        # # my test of verlet integration - hopefully
-        # # probably didn't work
-        # other_masses = 0
-        # other_r_squared = np.array([0.0, 0.0, 0.0], dtype=np.float32)
-        # #print(all_id_s, all_masses, all_positions)
-        # for imp in zip(all_id_s, all_masses, all_positions):
-        #     #print(imp[0], self.id)
-        #     if (imp[0] != self.id) and (imp[0] != 0):
-        #         other_masses += imp[1] if imp[1] != self.m else 0
-        #         other_r_squared += (imp[2]-self.curr_s)**2 if (imp[2]!=self.curr_s).all() else 0
-
-        # self.next_s = 2*self.curr_s - self.prev_s + G*other_masses*dt**2/other_r_squared
-
     def update_vbo(self):
         for i in range(len(self.data)):
             self.data[i, 0] = self.data[i, 0] - self.prev_s[0] + self.curr_s[0]
@@ -144,9 +80,41 @@ class sphere:
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
         glBufferData(GL_ARRAY_BUFFER, self.data.nbytes, self.data, GL_DYNAMIC_DRAW)
 
+    def update_trail_vbo(self):
+        for i in range(len(self.trail_s)):
+            self.trail_s[i, 0] = self.trail_s[i, 0] - self.prev_s[0] + self.curr_s[0]
+            self.trail_s[i, 1] = self.trail_s[i, 1] - self.prev_s[1] + self.curr_s[1]
+            self.trail_s[i, 2] = self.trail_s[i, 2] - self.prev_s[2] + self.curr_s[2]
 
+        self.trail_vbo = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
+        glBufferData(GL_ARRAY_BUFFER, self.trail_s.nbytes, self.trail_s, GL_DYNAMIC_DRAW)
 
+    def draw_trail(self):
+        n_per_vertice = 3
+        n_per_colour = 3
+        stride = self.trail_s.itemsize*6
+        n = self.trail_s.shape[0]
 
+        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
+
+        # enable vertex followed by color within VBOs
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glVertexPointer(n_per_vertice, GL_FLOAT, stride, ctypes.c_void_p(0))
+        glEnableClientState(GL_COLOR_ARRAY)
+
+        # calculate color offset (assuming data is tightly packed)
+        # color comes after vertex
+        size = stride // (n_per_vertice + n_per_colour)
+        glColorPointer(n_per_colour, GL_FLOAT, stride, ctypes.c_void_p(n_per_vertice * size))
+
+        # draw VBO
+        glPointSize(3)
+        glDrawArrays(GL_LINE_STRIP, 0, n)
+
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glDisableClientState(GL_COLOR_ARRAY)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
 
     def draw(self):
         n_per_vertice = 3

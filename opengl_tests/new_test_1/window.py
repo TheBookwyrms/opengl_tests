@@ -24,6 +24,7 @@ class window_test_with_openGL:
         
         self.width, self.height = 1924, 1028
         #self.width, self.height = 481, 257
+        #self.width, self.height = 600, 500
         self.aspect_ratio = self.width/self.height
 
         self.panning, self.angling = False, False
@@ -105,6 +106,30 @@ class window_test_with_openGL:
                 glfw.terminate()
                 self.done = True
 
+    def planet_maker(self):
+        num_planets = np.random.randint(4, 10)
+        for ijk in range(num_planets):
+            r = np.random.randint(2, 3)-np.random.random()
+            while r <= 0.1:
+                r += 0.2
+            pos_range = list(range(-39, 41, 7))
+            ijk = sphere(
+                radius=r,
+                #x_i=np.random.randint(-40, 40)-np.random.random(),
+                #y_i=np.random.randint(-40, 40)-np.random.random(),
+                #z_i=np.random.randint(-40, 40)-np.random.random(),
+                x_i=np.random.choice(pos_range),
+                y_i=np.random.choice(pos_range),
+                z_i=np.random.choice(pos_range),
+                )
+            #ijk.m *= np.random.randint(1, 5)
+            v_s = np.array(list(range(-100, 100, 14)))/100
+            ijk.curr_v = np.array([
+                    np.random.choice(v_s),
+                    np.random.choice(v_s),
+                    np.random.choice(v_s),
+            ])
+            self.planet_renders.append(ijk)
 
     def main(self, G=0.106743):
         if not glfw.init():
@@ -115,46 +140,25 @@ class window_test_with_openGL:
         glClearColor(0.2, 0.2, 0.2, 1)
         glEnable(GL_DEPTH_TEST)
 
+
         xyz_axis = axes()
 
-        planet_renders = []
+        self.planet_renders = []
 
         black_hole = sphere(radius=2,
                             x_c=[0,0,0],
                             y_c=[0,0,0],
                             z_c=[0,0,0])
         black_hole.m=800
-        planet_renders.append(black_hole)
+        self.planet_renders.append(black_hole)
 
-        def planet_maker():
-            num_planets = np.random.randint(4, 10)
-            for ijk in range(num_planets):
-                r = np.random.randint(2, 3)-np.random.random()
-                while r <= 0.1:
-                    r += 0.2
-                pos_range = list(range(-39, 41, 7))
-                ijk = sphere(
-                    radius=r,
-                    #x_i=np.random.randint(-40, 40)-np.random.random(),
-                    #y_i=np.random.randint(-40, 40)-np.random.random(),
-                    #z_i=np.random.randint(-40, 40)-np.random.random(),
-                    x_i=np.random.choice(pos_range),
-                    y_i=np.random.choice(pos_range),
-                    z_i=np.random.choice(pos_range),
-                    )
-                #ijk.m *= np.random.randint(1, 5)
-                v_s = np.array(list(range(-100, 100, 14)))/100
-                ijk.curr_v = np.array([
-                     np.random.choice(v_s),
-                     np.random.choice(v_s),
-                     np.random.choice(v_s),
-                ])
-                planet_renders.append(ijk)
-        planet_maker()
+        self.planet_maker()
         
         dt = 0
         start = time.time()
-        end = 0
+        current = time.time()
+        b = "0"
+
         self.done = False
 
         while not self.done:
@@ -165,8 +169,8 @@ class window_test_with_openGL:
 
 
             # acceleration calculations
-            for planet in planet_renders:
-                for index, other in enumerate(planet_renders):
+            for planet in self.planet_renders:
+                for index, other in enumerate(self.planet_renders):
                     if planet == other:
                         continue
 
@@ -176,7 +180,7 @@ class window_test_with_openGL:
                     if dist_vec_mag < 0.05:
                         planet.m += other.m
                         planet.curr_v += other.curr_v
-                        planet_renders.pop(index)
+                        self.planet_renders.pop(index)
 
                     if planet.m != 0:
                         Fg = G * planet.m * other.m / (dist_vec_mag**2)
@@ -201,18 +205,44 @@ class window_test_with_openGL:
 
 
 
-            for i in planet_renders:
-                i.draw()
-                i.prev_s = i.curr_s
-                i.curr_s = i.next_s
-                i.curr_v = i.next_v
-                i.curr_a = i.next_a
+            for p in self.planet_renders:
+                p.draw()
+                p.draw_trail()
+
+
+                p.prev_s = p.curr_s
+                p.curr_s = p.next_s
+                p.curr_v = p.next_v
+                p.curr_a = p.next_a
+
+                
+
+                p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
+                p.trail_s[0][0] = p.prev_s[0]
+                p.trail_s[0][1] = p.prev_s[1]
+                p.trail_s[0][2] = p.prev_s[2]
+
+
                 black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = (np.array([0, 0, 0]),)*3
-                i.update_vbo()
+
+                p.update_vbo()
+                if b[-1] in "987654":
+                    p.update_trail_vbo()
+                
+
+            
+            #print(self.planet_renders[3].trail_s)
+            #print(self.planet_renders[3].prev_s)
+            #print(self.planet_renders[3].curr_s)
+            #print()
+
 
             xyz_axis.draw()
             end = time.time()
-            dt = end-start
-            start = end
+            dt = end-current
+            current = end
+            a = time.time()-start
+            b = f'{a:.2g}'
+            #print(a, b, type(b))
             glfw.swap_buffers(window)
             glfw.poll_events()
