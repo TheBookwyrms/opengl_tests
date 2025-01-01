@@ -26,7 +26,7 @@ class sphere:
         self.curr_a = np.array([0, 0, 0], dtype=np.float32)
         self.next_a = np.array([0, 0, 0], dtype=np.float32)
 
-        self.trail_s = np.array(([x_i, y_i, z_i, 1, 1, 1],)*512, dtype=np.float32)
+        self.trail_s = np.array(([x_i, y_i, z_i, 1, 1, 1],)*1024, dtype=np.float32)
         self.trail_vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
         glBufferData(GL_ARRAY_BUFFER, self.trail_s.nbytes, self.trail_s, GL_DYNAMIC_DRAW)
