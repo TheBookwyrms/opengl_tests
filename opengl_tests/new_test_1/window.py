@@ -111,9 +111,6 @@ class window_test_with_openGL:
                 pause_time = time.time()
             if (key == glfw.KEY_SPACE) and (self.paused) and (time.time()- pause_time > 0.01):
                 self.paused = False
-        #if action == glfw.RELEASE:
-        #    if key == glfw.KEY_SPACE:
-        #        self.paused = False
 
     
 
