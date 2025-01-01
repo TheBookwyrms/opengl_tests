@@ -153,6 +153,15 @@ class window_test_with_openGL:
         self.planet_renders.append(black_hole)
 
         self.planet_maker()
+
+        
+        c = sphere(radius=2,
+                   x_i=0,
+                   y_i=-55,
+                   z_i=0)
+        c.m=800
+        c.curr_v = np.array([0, -50, 0])
+        self.planet_renders.append(c)
         
         dt = 0
         start = time.time()
@@ -169,7 +178,7 @@ class window_test_with_openGL:
 
 
             # acceleration calculations
-            for planet in self.planet_renders:
+            for i, planet in enumerate(self.planet_renders):
                 for index, other in enumerate(self.planet_renders):
                     if planet == other:
                         continue
@@ -180,6 +189,8 @@ class window_test_with_openGL:
                     if dist_vec_mag < 0.05:
                         planet.m += other.m
                         planet.curr_v += other.curr_v
+                        self.planet_renders.pop(index)
+                    elif (planet == self.planet_renders[0]) and (dist_vec_mag > 1024):
                         self.planet_renders.pop(index)
 
                     if planet.m != 0:
@@ -214,10 +225,6 @@ class window_test_with_openGL:
                 p.trail_s[0][0] = p.prev_s[0]
                 p.trail_s[0][1] = p.prev_s[1]
                 p.trail_s[0][2] = p.prev_s[2]
-
-                if p == self.planet_renders[2]:
-                    print(p.trail_s[:4])
-                    print()
 
                 black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = (np.array([0, 0, 0]),)*3
 
