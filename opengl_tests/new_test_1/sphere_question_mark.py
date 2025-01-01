@@ -76,9 +76,9 @@ class sphere:
             self.data[i, 1] = self.data[i, 1] - self.prev_s[1] + self.curr_s[1]
             self.data[i, 2] = self.data[i, 2] - self.prev_s[2] + self.curr_s[2]
 
-        self.vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.data.nbytes, self.data, GL_DYNAMIC_DRAW)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, self.data.nbytes, self.data)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
 
     def update_trail_vbo(self):
         for i in range(len(self.trail_s)):
@@ -86,9 +86,9 @@ class sphere:
             self.trail_s[i, 1] = self.trail_s[i, 1] - self.prev_s[1] + self.curr_s[1]
             self.trail_s[i, 2] = self.trail_s[i, 2] - self.prev_s[2] + self.curr_s[2]
 
-        self.trail_vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.trail_s.nbytes, self.trail_s, GL_DYNAMIC_DRAW)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, self.trail_s.nbytes, self.trail_s)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
 
     def draw_trail(self):
         n_per_vertice = 3

@@ -201,27 +201,19 @@ class window_test_with_openGL:
                 # planet.next_s = 2*planet.curr_s - planet.prev_s + planet.curr_a * dt**2
 
             
-
-
-
-
             for p in self.planet_renders:
                 p.draw()
                 p.draw_trail()
-
 
                 p.prev_s = p.curr_s
                 p.curr_s = p.next_s
                 p.curr_v = p.next_v
                 p.curr_a = p.next_a
 
-                
-
                 p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
                 p.trail_s[0][0] = p.prev_s[0]
                 p.trail_s[0][1] = p.prev_s[1]
                 p.trail_s[0][2] = p.prev_s[2]
-
 
                 black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = (np.array([0, 0, 0]),)*3
 
