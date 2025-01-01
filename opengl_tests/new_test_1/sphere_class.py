@@ -6,7 +6,7 @@ from OpenGL.GLU import *
 
 import numpy as np
 
-class sphere:
+class Sphere:
     def __init__(self, radius=1, x_i=0, y_i=0, z_i=0, x_c=[1,0,0], y_c=[0,1,0], z_c=[0,0,1]):
         self.build_sphere_coords(radius, x_i, y_i, z_i, x_c, y_c, z_c)
 

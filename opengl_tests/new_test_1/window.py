@@ -6,10 +6,8 @@ from OpenGL.GLU import *
 
 import numpy as np
 
-from opengl_tests.new_test_1.check_key_presses import *
-from opengl_tests.new_test_1.objects_on_screen import *
-from opengl_tests.new_test_1.from_elsewhere import *
-from opengl_tests.new_test_1.sphere_question_mark import *
+from opengl_tests.new_test_1.sphere_class import *
+from opengl_tests.new_test_1.black_hole_class import *
 from opengl_tests.new_test_1.xyz_axis import *
 import time
 
@@ -18,7 +16,7 @@ class window_test_with_openGL:
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 45 # degrees?
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
-        self.zoom = 45
+        self.zoom = 185
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
         
@@ -109,25 +107,44 @@ class window_test_with_openGL:
     
 
     def main(self, G=1): # G=0.106743
-        def planet_maker():
-            num_planets = np.random.randint(4, 10)
-            for ijk in range(num_planets):
-                r = np.random.randint(2, 3)-np.random.random()
-                while r <= 0.1:
-                    r += 0.2
-                pos_range = list(range(-39, 41, 7))
-                ijk = sphere(
+        def gen_black_holes():
+            num_black_holes = np.random.randint(4, 10)
+            for i in range(num_black_holes):
+                pos_range = list(range(-300, 300, 23))
+                r = np.random.randint(2, 7)-np.random.random()
+                black_hole = BlackHole(
                     radius=r,
                     x_i=np.random.choice(pos_range),
                     y_i=np.random.choice(pos_range),
                     z_i=np.random.choice(pos_range),
-                    )
-                ijk.curr_v =np.roll(
-                    np.sqrt((
-                        (ijk.curr_s-black_hole.curr_s)**2 * G * black_hole.m / (np.linalg.norm(ijk.curr_s-black_hole.curr_s))**3
-                        )),
-                    shift=1)
-                self.planet_renders.append(ijk)
+                )
+                self.planet_renders.append(black_hole)
+
+
+
+        def gen_planets():
+            num_b = len(self.planet_renders)
+            for b in range(num_b):
+                bh = self.planet_renders[b]
+                num_planets = np.random.randint(3, 7)
+                pos_range = list(range(-39, 41, 7))
+                for i in range(num_planets):
+                    r = np.random.randint(2, 3)-np.random.random()
+                    planet = Sphere(
+                        radius=r,
+                        x_i=np.random.choice(pos_range)+bh.curr_s[0],
+                        y_i=np.random.choice(pos_range)+bh.curr_s[1],
+                        z_i=np.random.choice(pos_range)+bh.curr_s[2],
+                        x_c=[np.random.random(), np.random.random(), np.random.random()],
+                        y_c=[np.random.random(), np.random.random(), np.random.random()],
+                        z_c=[np.random.random(), np.random.random(), np.random.random()],
+                        )
+                    planet.curr_v =np.roll(
+                        np.sqrt((
+                            (planet.curr_s-bh.curr_s)**2 * G * bh.m / (np.linalg.norm(planet.curr_s-bh.curr_s))**3
+                            )),
+                        shift=1)
+                    self.planet_renders.append(planet)
 
 
         if not glfw.init():
@@ -143,41 +160,28 @@ class window_test_with_openGL:
 
         self.planet_renders = []
 
-        black_hole = sphere(radius=2,
-                            x_c=[0,0,0],
-                            y_c=[0,0,0],
-                            z_c=[0,0,0])
-        black_hole.m=800
+        black_hole = BlackHole(radius=2,
+                               x_i=0,
+                               y_i=0,
+                               z_i=0)
+        #black_hole.m=800
+        #print(black_hole.m)
         self.planet_renders.append(black_hole)
 
-        
-        planet_maker()
+        #black_hole2 = BlackHole(
+        #    radius=2,
+        #    x_i=0,
+        #    y_i=0,
+        #    z_i=20)
+        #self.planet_renders.append(black_hole2)
 
-        #circler = sphere(
-        #    radius=1,
-        #    x_i=8,
-        #    y_i=2,
-        #    z_i=3
-        #)
-        #circler.curr_v = np.array([0, np.sqrt(8), 0])
-        #self.planet_renders.append(circler)
-
-        '''
-        G = 6.67e-7
-        G = 1?
-        ds**2 * G * M / d**3 = v**2
-
-        (0, 0, 10)**2 * 1 * 80 / 10**3 = v**2
-        (0, 0, 8) ? v**2
-        (0, 0, np.sqrt(8)) = v
-        '''
-
+        gen_black_holes()
+        gen_planets()
 
         
         dt = 0
         start = time.time()
         current = time.time()
-        b = "0"
 
         self.done = False
 
@@ -188,7 +192,7 @@ class window_test_with_openGL:
             self.update_camera()
 
 
-            # acceleration calculations
+            # force on each planet due to gravity calculations
             for i, planet in enumerate(self.planet_renders):
                 for index, other in enumerate(self.planet_renders):
                     if planet == other:
@@ -197,15 +201,16 @@ class window_test_with_openGL:
                     dist_vec = other.curr_s - planet.curr_s
                     dist_vec_mag = np.linalg.norm(dist_vec)
 
-                    if dist_vec_mag < 0.05:
+                    if dist_vec_mag < 0.5:
                         planet.m += other.m
-                        planet.curr_v += other.curr_v
+                        #planet.curr_v += other.curr_v
                         self.planet_renders.pop(index)
                     elif (planet == self.planet_renders[0]) and (dist_vec_mag > 1024):
                         self.planet_renders.pop(index)
 
                     if planet.m != 0:
                         Fg = G * planet.m * other.m / (dist_vec_mag**2)
+                        #print(dist_vec, dist_vec_mag, Fg)
                         Fa = dist_vec / dist_vec_mag * Fg
                         planet.next_a += Fa
 
@@ -214,14 +219,6 @@ class window_test_with_openGL:
                 planet.next_a /= planet.m
                 planet.next_v = planet.curr_a * dt + planet.curr_v
                 planet.next_s = planet.next_v * dt + planet.curr_s
-
-                # # Verlet integration
-                ''' works if no initial velocity, and black hole mass is small '''
-                # print(f'prev: {planet.prev_s}, {type(planet.prev_s)}')
-                # print(f'current: {planet.curr_s}, {type(planet.curr_s)}')
-                # print(f'next: {planet.next_s}, {type(planet.next_s)}')
-                # print()
-                # planet.next_s = 2*planet.curr_s - planet.prev_s + planet.curr_a * dt**2
 
             
             for p in self.planet_renders:
@@ -247,7 +244,7 @@ class window_test_with_openGL:
                     p.data[i, 1] = p.data[i, 1] - p.prev_s[1] + p.curr_s[1]
                     p.data[i, 2] = p.data[i, 2] - p.prev_s[2] + p.curr_s[2]
 
-                black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = (np.array([0, 0, 0]),)*3
+                #black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = (np.array([0, 0, 0]),)*3
 
                 p.update_point_and_trail_vbo()
 

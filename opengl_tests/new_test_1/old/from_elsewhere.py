@@ -6,7 +6,7 @@ from OpenGL.GLU import *
 
 import numpy as np
 
-from opengl_tests.new_test_1.check_key_presses import *
+from check_key_presses import *
 import ctypes
 
 class A:
