@@ -1,6 +1,3 @@
-import glfw
-from glfw.GLFW import *
-
 from OpenGL.GL import *
 from OpenGL.GLU import *
 

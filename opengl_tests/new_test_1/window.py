@@ -101,15 +101,19 @@ class window_test_with_openGL:
                 self.angling = False
     
     def key_callbacks(self, window, key, scancode, action, mods):
+        global pause_time
         if action == glfw.PRESS:
             if key == glfw.KEY_ESCAPE:
                 glfw.terminate()
                 self.done = True
-            if key == glfw.KEY_SPACE:
+            if (key == glfw.KEY_SPACE) and (not self.paused):
                 self.paused = True
-        if action == glfw.RELEASE:
-            if key == glfw.KEY_SPACE:
+                pause_time = time.time()
+            if (key == glfw.KEY_SPACE) and (self.paused) and (time.time()- pause_time > 0.01):
                 self.paused = False
+        #if action == glfw.RELEASE:
+        #    if key == glfw.KEY_SPACE:
+        #        self.paused = False
 
     
 
@@ -125,14 +129,14 @@ class window_test_with_openGL:
                     y_i=np.random.choice(pos_range),
                     z_i=np.random.choice(pos_range),
                 )
-                self.planet_renders.append(black_hole)
+                self.bodies.append(black_hole)
 
 
 
         def gen_planets():
-            num_b = len(self.planet_renders)
+            num_b = len(self.bodies)
             for b in range(num_b):
-                bh = self.planet_renders[b]
+                bh = self.bodies[b]
                 num_planets = np.random.randint(3, 7)
                 pos_range = list(range(-39, 41, 7))
                 for i in range(num_planets):
@@ -146,12 +150,17 @@ class window_test_with_openGL:
                         y_c=[np.random.random(), np.random.random(), np.random.random()],
                         z_c=[np.random.random(), np.random.random(), np.random.random()],
                         )
+                    
+                    # generates velocity of planet based on velocity required to make
+                    # a circular orbit around the black hole, were it only the gravity
+                    # of the black hole and no others acting upon it
                     planet.curr_v =np.roll(
                         np.sqrt((
                             (planet.curr_s-bh.curr_s)**2 * G * bh.m / (np.linalg.norm(planet.curr_s-bh.curr_s))**3
                             )),
                         shift=1)
-                    self.planet_renders.append(planet)
+                    
+                    self.bodies.append(planet)
 
 
         if not glfw.init():
@@ -166,13 +175,13 @@ class window_test_with_openGL:
         xyz_axis = axes()
         bkg = BackgroundStars()
 
-        self.planet_renders = []
+        self.bodies = []
 
         black_hole = BlackHole(radius=2,
                                x_i=0,
                                y_i=0,
                                z_i=0)
-        self.planet_renders.append(black_hole)
+        self.bodies.append(black_hole)
 
         #gen_black_holes()
         gen_planets()
@@ -193,8 +202,8 @@ class window_test_with_openGL:
 
 
             # force on each planet due to gravity calculations
-            for i, planet in enumerate(self.planet_renders):
-                for index, other in enumerate(self.planet_renders):
+            for i, planet in enumerate(self.bodies):
+                for index, other in enumerate(self.bodies):
                     if planet == other:
                         continue
 
@@ -204,9 +213,9 @@ class window_test_with_openGL:
                     if dist_vec_mag < 0.5:
                         planet.m += other.m
                         #planet.curr_v += other.curr_v
-                        self.planet_renders.pop(index)
-                    elif (planet == self.planet_renders[0]) and (dist_vec_mag > 1024):
-                        self.planet_renders.pop(index)
+                        self.bodies.pop(index)
+                    elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
+                        self.bodies.pop(index)
 
                     if planet.m != 0:
                         Fg = G * planet.m * other.m / (dist_vec_mag**2)
@@ -220,7 +229,7 @@ class window_test_with_openGL:
                 planet.next_v = planet.curr_a * dt + planet.curr_v
                 planet.next_s = planet.next_v * dt + planet.curr_s
           
-            for p in self.planet_renders:
+            for p in self.bodies:
                 draw(p.vertices, p.vbo, GL_POINTS) # draws sphere
                 draw(p.trail_s, p.trail_vbo, GL_LINE_STRIP) # draws trails
                 
