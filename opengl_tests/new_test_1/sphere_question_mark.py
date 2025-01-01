@@ -70,29 +70,23 @@ class sphere:
         data[:, 3:] = colours
         self.data = data
 
-    def update_vbo(self):
-        for i in range(len(self.data)):
-            self.data[i, 0] = self.data[i, 0] - self.prev_s[0] + self.curr_s[0]
-            self.data[i, 1] = self.data[i, 1] - self.prev_s[1] + self.curr_s[1]
-            self.data[i, 2] = self.data[i, 2] - self.prev_s[2] + self.curr_s[2]
+    def update_point_and_trail_vbo(self):
 
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
         glBufferSubData(GL_ARRAY_BUFFER, 0, self.data.nbytes, self.data)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-    def update_trail_vbo(self):
-
         glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
         glBufferSubData(GL_ARRAY_BUFFER, 0, self.trail_s.nbytes, self.trail_s)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-    def draw_trail(self):
+    
+    def draw(self, point_data, point_vbo, draw_type):
         n_per_vertice = 3
         n_per_colour = 3
-        stride = self.trail_s.itemsize*6
-        n = self.trail_s.shape[0]
+        stride = point_data.itemsize*6
+        n = point_data.shape[0]
 
-        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
+        glBindBuffer(GL_ARRAY_BUFFER, point_vbo)
 
         # enable vertex followed by color within VBOs
         glEnableClientState(GL_VERTEX_ARRAY)
@@ -106,33 +100,7 @@ class sphere:
 
         # draw VBO
         glPointSize(3)
-        glDrawArrays(GL_LINE_STRIP, 0, n)
-
-        glDisableClientState(GL_VERTEX_ARRAY)
-        glDisableClientState(GL_COLOR_ARRAY)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-    def draw(self):
-        n_per_vertice = 3
-        n_per_colour = 3
-        stride = self.vertices.itemsize*6
-        n = self.vertices.shape[0]
-
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-
-        # enable vertex followed by color within VBOs
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glVertexPointer(n_per_vertice, GL_FLOAT, stride, ctypes.c_void_p(0))
-        glEnableClientState(GL_COLOR_ARRAY)
-
-        # calculate color offset (assuming data is tightly packed)
-        # color comes after vertex
-        size = stride // (n_per_vertice + n_per_colour)
-        glColorPointer(n_per_colour, GL_FLOAT, stride, ctypes.c_void_p(n_per_vertice * size))
-
-        # draw VBO
-        glPointSize(3)
-        glDrawArrays(GL_POINTS, 0, n)
+        glDrawArrays(draw_type, 0, n)
 
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_COLOR_ARRAY)

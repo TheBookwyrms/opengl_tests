@@ -147,7 +147,7 @@ class window_test_with_openGL:
                             x_c=[0,0,0],
                             y_c=[0,0,0],
                             z_c=[0,0,0])
-        black_hole.m=80
+        black_hole.m=800
         self.planet_renders.append(black_hole)
 
         
@@ -225,23 +225,31 @@ class window_test_with_openGL:
 
             
             for p in self.planet_renders:
-                p.draw()
-                p.draw_trail()
+                p.draw(p.vertices, p.vbo, GL_POINTS) # draw spheres
+                p.draw(p.trail_s, p.trail_vbo, GL_LINE_STRIP) # draw trails
 
+                # updates planet s, v, a per euler integration
                 p.prev_s = p.curr_s
                 p.curr_s = p.next_s
                 p.curr_v = p.next_v
                 p.curr_a = p.next_a
 
+                # updates trail position based newly previous s
                 p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
                 p.trail_s[0][0] = p.prev_s[0]
                 p.trail_s[0][1] = p.prev_s[1]
                 p.trail_s[0][2] = p.prev_s[2]
 
+                
+                # updates planet s based on newly previous and current s
+                for i in range(len(p.data)):
+                    p.data[i, 0] = p.data[i, 0] - p.prev_s[0] + p.curr_s[0]
+                    p.data[i, 1] = p.data[i, 1] - p.prev_s[1] + p.curr_s[1]
+                    p.data[i, 2] = p.data[i, 2] - p.prev_s[2] + p.curr_s[2]
+
                 black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = (np.array([0, 0, 0]),)*3
 
-                p.update_vbo()
-                p.update_trail_vbo()
+                p.update_point_and_trail_vbo()
 
             xyz_axis.draw()
             end = time.time()
