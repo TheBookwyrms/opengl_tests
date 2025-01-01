@@ -169,7 +169,7 @@ class window_test_with_openGL:
         glEnable(GL_DEPTH_TEST)
 
 
-        xyz_axis = axes()
+        # xyz_axis = axes()
         bkg = BackgroundStars()
 
         self.bodies = []
@@ -180,7 +180,7 @@ class window_test_with_openGL:
                                z_i=0)
         self.bodies.append(black_hole)
 
-        #gen_black_holes()
+        # gen_black_holes()
         gen_planets()
 
         
@@ -256,7 +256,7 @@ class window_test_with_openGL:
 
                     p.update_point_and_trail_vbo()
 
-            draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
+            # draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
             draw(bkg.vertices, bkg.vbo, GL_POINTS) # draws background stars
             end = time.time()
             dt = end-current
