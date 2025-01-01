@@ -215,26 +215,18 @@ class window_test_with_openGL:
                 p.trail_s[0][1] = p.prev_s[1]
                 p.trail_s[0][2] = p.prev_s[2]
 
+                if p == self.planet_renders[2]:
+                    print(p.trail_s[:4])
+                    print()
+
                 black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = (np.array([0, 0, 0]),)*3
 
                 p.update_vbo()
-                if b[-1] in "987654":
-                    p.update_trail_vbo()
-                
-
-            
-            #print(self.planet_renders[3].trail_s)
-            #print(self.planet_renders[3].prev_s)
-            #print(self.planet_renders[3].curr_s)
-            #print()
-
+                p.update_trail_vbo()
 
             xyz_axis.draw()
             end = time.time()
             dt = end-current
             current = end
-            a = time.time()-start
-            b = f'{a:.2g}'
-            #print(a, b, type(b))
             glfw.swap_buffers(window)
             glfw.poll_events()

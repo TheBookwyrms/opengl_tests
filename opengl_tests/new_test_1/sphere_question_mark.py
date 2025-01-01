@@ -81,10 +81,6 @@ class sphere:
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
     def update_trail_vbo(self):
-        for i in range(len(self.trail_s)):
-            self.trail_s[i, 0] = self.trail_s[i, 0] - self.prev_s[0] + self.curr_s[0]
-            self.trail_s[i, 1] = self.trail_s[i, 1] - self.prev_s[1] + self.curr_s[1]
-            self.trail_s[i, 2] = self.trail_s[i, 2] - self.prev_s[2] + self.curr_s[2]
 
         glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
         glBufferSubData(GL_ARRAY_BUFFER, 0, self.trail_s.nbytes, self.trail_s)
