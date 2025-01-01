@@ -6,8 +6,8 @@ from OpenGL.GLU import *
 
 import numpy as np
 
-class Sphere:
-    def __init__(self, radius=1, x_i=0, y_i=0, z_i=0, x_c=[1,0,0], y_c=[0,1,0], z_c=[0,0,1]):
+class BackgroundStars:
+    def __init__(self, radius=1023, x_i=0, y_i=0, z_i=0, x_c=[1,1,1], y_c=[1,1,1], z_c=[1,1,1]):
         self.build_sphere_coords(radius, x_i, y_i, z_i, x_c, y_c, z_c)
 
         self.vbo = glGenBuffers(1)
@@ -15,25 +15,8 @@ class Sphere:
         glBufferData(GL_ARRAY_BUFFER, self.data.nbytes, self.data, GL_DYNAMIC_DRAW)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-
-        self.radius = radius
-        self.m = (np.random.randint(3, 8) - np.random.random()) * radius
-        self.prev_s = np.array([x_i, y_i, z_i], dtype=np.float32)
-        self.curr_s = np.array([x_i, y_i, z_i], dtype=np.float32)
-        self.next_s = np.array([x_i, y_i, z_i], dtype=np.float32)
-        self.curr_v = np.array([0, 0, 0], dtype=np.float32)
-        self.next_v = np.array([0, 0, 0], dtype=np.float32)
-        self.curr_a = np.array([0, 0, 0], dtype=np.float32)
-        self.next_a = np.array([0, 0, 0], dtype=np.float32)
-
-        self.trail_s = np.array(([x_i, y_i, z_i, 1, 1, 1],)*256, dtype=np.float32)
-        self.trail_vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.trail_s.nbytes, self.trail_s, GL_DYNAMIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
     def build_sphere_coords(self, radius, x, y, z, xc, yc, zc):
-        heights = np.linspace(0, 2*radius, num=10)
+        heights = np.linspace(0, 2*radius, num=60)
         degrees = np.linspace(0, 360, num=60)
         self.positions = []
         self.colours = []
@@ -69,13 +52,3 @@ class Sphere:
         data[:, :3] = vertices
         data[:, 3:] = colours
         self.data = data
-
-    def update_point_and_trail_vbo(self):
-
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, self.data.nbytes, self.data)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, self.trail_s.nbytes, self.trail_s)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)

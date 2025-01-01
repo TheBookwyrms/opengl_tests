@@ -8,6 +8,8 @@ import numpy as np
 
 from opengl_tests.new_test_1.sphere_class import *
 from opengl_tests.new_test_1.black_hole_class import *
+from opengl_tests.new_test_1.background_stars_class import *
+from opengl_tests.new_test_1.vbo_and_render import *
 from opengl_tests.new_test_1.xyz_axis import *
 import time
 
@@ -16,7 +18,7 @@ class window_test_with_openGL:
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 45 # degrees?
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
-        self.zoom = 185
+        self.zoom = 50 # 185
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
         
@@ -103,14 +105,19 @@ class window_test_with_openGL:
             if key == glfw.KEY_ESCAPE:
                 glfw.terminate()
                 self.done = True
+            if key == glfw.KEY_SPACE:
+                self.paused = True
+        if action == glfw.RELEASE:
+            if key == glfw.KEY_SPACE:
+                self.paused = False
 
     
 
     def main(self, G=1): # G=0.106743
         def gen_black_holes():
-            num_black_holes = np.random.randint(4, 10)
+            num_black_holes = np.random.randint(2, 4)
             for i in range(num_black_holes):
-                pos_range = list(range(-300, 300, 23))
+                pos_range = list(range(-200, 200, 13))
                 r = np.random.randint(2, 7)-np.random.random()
                 black_hole = BlackHole(
                     radius=r,
@@ -157,6 +164,7 @@ class window_test_with_openGL:
 
 
         xyz_axis = axes()
+        bkg = BackgroundStars()
 
         self.planet_renders = []
 
@@ -164,18 +172,9 @@ class window_test_with_openGL:
                                x_i=0,
                                y_i=0,
                                z_i=0)
-        #black_hole.m=800
-        #print(black_hole.m)
         self.planet_renders.append(black_hole)
 
-        #black_hole2 = BlackHole(
-        #    radius=2,
-        #    x_i=0,
-        #    y_i=0,
-        #    z_i=20)
-        #self.planet_renders.append(black_hole2)
-
-        gen_black_holes()
+        #gen_black_holes()
         gen_planets()
 
         
@@ -184,6 +183,7 @@ class window_test_with_openGL:
         current = time.time()
 
         self.done = False
+        self.paused = False
 
         while not self.done:
 
@@ -219,36 +219,39 @@ class window_test_with_openGL:
                 planet.next_a /= planet.m
                 planet.next_v = planet.curr_a * dt + planet.curr_v
                 planet.next_s = planet.next_v * dt + planet.curr_s
-
-            
+          
             for p in self.planet_renders:
-                p.draw(p.vertices, p.vbo, GL_POINTS) # draw spheres
-                p.draw(p.trail_s, p.trail_vbo, GL_LINE_STRIP) # draw trails
-
-                # updates planet s, v, a per euler integration
-                p.prev_s = p.curr_s
-                p.curr_s = p.next_s
-                p.curr_v = p.next_v
-                p.curr_a = p.next_a
-
-                # updates trail position based newly previous s
-                p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
-                p.trail_s[0][0] = p.prev_s[0]
-                p.trail_s[0][1] = p.prev_s[1]
-                p.trail_s[0][2] = p.prev_s[2]
-
+                draw(p.vertices, p.vbo, GL_POINTS) # draws sphere
+                draw(p.trail_s, p.trail_vbo, GL_LINE_STRIP) # draws trails
                 
-                # updates planet s based on newly previous and current s
-                for i in range(len(p.data)):
-                    p.data[i, 0] = p.data[i, 0] - p.prev_s[0] + p.curr_s[0]
-                    p.data[i, 1] = p.data[i, 1] - p.prev_s[1] + p.curr_s[1]
-                    p.data[i, 2] = p.data[i, 2] - p.prev_s[2] + p.curr_s[2]
+                if not self.paused:  
 
-                #black_hole.curr_a, black_hole.curr_v, black_hole.curr_s = (np.array([0, 0, 0]),)*3
+                    # updates planet s, v, a per euler integration
+                    p.prev_s = p.curr_s
+                    p.curr_s = p.next_s
+                    p.curr_v = p.next_v
+                    p.curr_a = p.next_a
 
-                p.update_point_and_trail_vbo()
+                    # updates trail position based newly previous s
+                    p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
+                    p.trail_s[0][0] = p.prev_s[0]
+                    p.trail_s[0][1] = p.prev_s[1]
+                    p.trail_s[0][2] = p.prev_s[2]
 
-            xyz_axis.draw()
+                    
+                    # updates planet s based on newly previous and current s
+                    for i in range(len(p.data)):
+                        p.data[i, 0] = p.data[i, 0] - p.prev_s[0] + p.curr_s[0]
+                        p.data[i, 1] = p.data[i, 1] - p.prev_s[1] + p.curr_s[1]
+                        p.data[i, 2] = p.data[i, 2] - p.prev_s[2] + p.curr_s[2]
+
+                    if type(p) == BlackHole:
+                        p.curr_a, p.curr_v, p.curr_s = (np.array([0, 0, 0]),)*3
+
+                    p.update_point_and_trail_vbo()
+
+            draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
+            draw(bkg.vertices, bkg.vbo, GL_POINTS) # draws background stars
             end = time.time()
             dt = end-current
             current = end
