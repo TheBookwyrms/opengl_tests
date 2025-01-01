@@ -165,7 +165,7 @@ class window_test_with_openGL:
         
         window = self.build_window()
 
-        glClearColor(0.2, 0.2, 0.2, 1)
+        glClearColor(0.1, 0.1, 0.1, 1)
         glEnable(GL_DEPTH_TEST)
 
 
