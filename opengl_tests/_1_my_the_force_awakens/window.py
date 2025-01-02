@@ -6,11 +6,11 @@ from OpenGL.GLU import *
 
 import numpy as np
 
-from opengl_tests.new_test_1.sphere_class import *
-from opengl_tests.new_test_1.black_hole_class import *
-from opengl_tests.new_test_1.background_stars_class import *
-from opengl_tests.new_test_1.vbo_and_render import *
-from opengl_tests.new_test_1.xyz_axis import *
+from opengl_tests._1_my_the_force_awakens.sphere_class import *
+from opengl_tests._1_my_the_force_awakens.black_hole_class import *
+from opengl_tests._1_my_the_force_awakens.background_stars_class import *
+from opengl_tests._1_my_the_force_awakens.vbo_and_render import *
+from opengl_tests._1_my_the_force_awakens.xyz_axis import *
 import time
 
 class window_test_with_openGL:
