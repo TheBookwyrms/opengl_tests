@@ -204,12 +204,20 @@ class solar_system:
                     dist_vec = other.curr_s - planet.curr_s
                     dist_vec_mag = np.linalg.norm(dist_vec)
 
-                    if dist_vec_mag < 0.5:
-                        planet.m += other.m
-                        #planet.curr_v += other.curr_v
-                        self.bodies.pop(index)
-                    elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
-                        self.bodies.pop(index)
+                    if type(other) == Sphere:
+                        if dist_vec_mag < 0.5:
+                            planet.m += other.m
+                            #planet.curr_v += other.curr_v
+                            self.bodies.pop(index)
+                        elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
+                            self.bodies.pop(index)
+                    elif type(other) == BlackHole:
+                        if dist_vec_mag < other.radius:
+                            planet.m += other.m
+                            #planet.curr_v += other.curr_v
+                            self.bodies.pop(index)
+                        elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
+                            self.bodies.pop(index)
 
                     if planet.m != 0:
                         Fg = G * planet.m * other.m / (dist_vec_mag**2)
