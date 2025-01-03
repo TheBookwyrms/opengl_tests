@@ -13,6 +13,8 @@ class BackgroundStars:
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
     def build_sphere_coords(self, radius, x, y, z, xc, yc, zc):
+        # generates a thin sphere around at the edges of the rendering
+        # this causes a star-like effect due to the nature of the sphere as discrete points
         heights = np.linspace(0, 2*radius, num=60)
         degrees = np.linspace(0, 360, num=60)
         self.positions = []

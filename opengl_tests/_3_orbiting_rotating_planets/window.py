@@ -123,7 +123,7 @@ class solar_system:
             for b in range(num_b):
                 bh = self.bodies[b]
                 num_planets = np.random.randint(3, 7)
-                #num_planets = 1
+                num_planets = 1
                 pos_range = list(range(-19, 21, 7))
                 for i in range(num_planets):
                     r = np.random.randint(2, 3)-np.random.random()
@@ -132,6 +132,9 @@ class solar_system:
                         x_i=np.random.choice(pos_range)+bh.curr_s[0],
                         y_i=np.random.choice(pos_range)+bh.curr_s[1],
                         z_i=np.random.choice(pos_range)+bh.curr_s[2],
+                        #x_i=0,
+                        #y_i=10,
+                        #z_i=0,
                         x_c=[np.random.random(), np.random.random(), np.random.random()],
                         y_c=[np.random.random(), np.random.random(), np.random.random()],
                         z_c=[np.random.random(), np.random.random(), np.random.random()],
@@ -156,7 +159,7 @@ class solar_system:
         
         window = self.build_window()
 
-        glClearColor(0.2, 0.2, 0.2, 1)
+        glClearColor(0.1, 0.1, 0.1, 1)
         glEnable(GL_DEPTH_TEST)
 
         self.bodies = []
@@ -173,9 +176,6 @@ class solar_system:
         self.bodies.append(black_hole)
 
         gen_planets()
-
-        
-
 
         dt = 0
         start = time.time()
@@ -239,7 +239,7 @@ class solar_system:
                     p.curr_v = p.next_v
                     p.curr_a = p.next_a
 
-                    # rotation of the sphere by angle theta
+                    # rotation of the sphere by angle theta in radians
                     if type(p) != BlackHole:
                         theta = p.rad_per_rot
                         for i in range(len(p.data)):
@@ -252,34 +252,25 @@ class solar_system:
 
                     # updates trail position based newly previous s
                     p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
-                    p.trail_s[0][0] = p.prev_s[0]
-                    p.trail_s[0][1] = p.prev_s[1]
-                    p.trail_s[0][2] = p.prev_s[2]
-
+                    p.trail_s[0, :3] = p.prev_s[:3]
                     
                     # updates planet s based on newly previous and current s
                     for i in range(len(p.data)):
-                        p.data[i, 0] = p.data[i, 0] - p.prev_s[0] + p.curr_s[0]
-                        p.data[i, 1] = p.data[i, 1] - p.prev_s[1] + p.curr_s[1]
-                        p.data[i, 2] = p.data[i, 2] - p.prev_s[2] + p.curr_s[2]
+                        p.data[i, :3] = p.data[i, :3] - p.prev_s + p.curr_s
 
+                    # resets the black hole to the origin (keeps it still)
                     if type(p) == BlackHole:
                         p.curr_a, p.curr_v, p.curr_s = (np.array([0, 0, 0]),)*3
 
+                    # rotates the sphere about its center
                     if type(p) != BlackHole:
-                        p.l_coords[0][0] = p.curr_s[0] + 5*p.r_axis_vec[0]
-                        p.l_coords[0][1] = p.curr_s[1] + 5*p.r_axis_vec[1]
-                        p.l_coords[0][2] = p.curr_s[2] + 5*p.r_axis_vec[2]
-
-                        p.l_coords[1][0] = p.curr_s[0] - 5*p.r_axis_vec[0]
-                        p.l_coords[1][1] = p.curr_s[1] - 5*p.r_axis_vec[1]
-                        p.l_coords[1][2] = p.curr_s[2] - 5*p.r_axis_vec[2]
-
-
+                        p.l_coords[0][:3] = p.curr_s + 5*p.r_axis_vec
+                        p.l_coords[1][:3] = p.curr_s - 5*p.r_axis_vec
                         
                     p.vbos()
 
             draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
+            draw(bkg.data, bkg.vbo, GL_POINTS) # draws background stars
             end = time.time()
             dt = end-current
             current = end

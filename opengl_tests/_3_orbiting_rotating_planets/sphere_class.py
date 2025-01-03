@@ -31,7 +31,6 @@ class Sphere:
 
         line_of_rotation = LineOfRotation(rot_axis_vec, np.array([x_i, y_i, z_i]), r_axis_c)
         self.l_coords = line_of_rotation.data
-        print(self.l_coords, self.l_coords.shape)
         self.l_vbo = line_of_rotation.vbo
         self.r_axis_vec = line_of_rotation.unit_vec
         self.deg_per_rot = deg_per_rot
