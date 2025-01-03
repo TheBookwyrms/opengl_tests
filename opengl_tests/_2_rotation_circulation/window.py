@@ -17,7 +17,7 @@ class rotation_circulation_of_sphere_test:
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
-        self.zoom = 6 # 30    # 185
+        self.zoom = 10 # 30    # 185
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
         
@@ -190,14 +190,11 @@ class rotation_circulation_of_sphere_test:
                 x_c = [np.random.random(), np.random.random(), np.random.random()],
                 y_c = [np.random.random(), np.random.random(), np.random.random()],
                 z_c = [np.random.random(), np.random.random(), np.random.random()],
-                e_c = [1, 1, 1]
+                #rot_axis_vec=np.array([90, 0, 0]),
+                r_axis_c=np.array([1, 1, 1])
                 )
 
             self.rotation = True
-
-            a, x, b = 1, np.linspace(-1023, 1023, num=60000), 0
-            #print(x)
-            planet.axis_of_rotation = a*x+b
 
             self.bodies.append(planet)
 
@@ -243,17 +240,15 @@ class rotation_circulation_of_sphere_test:
                         p.update_point_and_trail_vbo()
 
                     if self.rotation:
-                        vec_k_axis_of_rotation = np.array([4, 9.24345, 0])
-                        unit_k = vec_k_axis_of_rotation/np.abs(np.linalg.norm(vec_k_axis_of_rotation))
-                        if np.round(np.linalg.norm(unit_k), 10) != 1:
-                            raise ValueError("k is not a unit vector, sphere will expand or contract")
-                        theta = 0.1
+                        draw(p.l_coords, p.l_vbo, GL_LINES)
+
+                        theta = p.deg_per_rot
                         for i in range(len(p.data)):
                             p.data[i, :3] = (p.data[i, :3]*np.cos(theta) +
                                             np.cross(
-                                                p.data[i, :3], unit_k
+                                                p.data[i, :3], p.r_axis_vec
                                             ) * np.sin(theta) +
-                                            unit_k * np.dot(unit_k, p.data[i, :3]) * (1-np.cos(theta))
+                                            p.r_axis_vec * np.dot(p.r_axis_vec, p.data[i, :3]) * (1-np.cos(theta))
                                             )
                             
                             p.update_point_and_trail_vbo()

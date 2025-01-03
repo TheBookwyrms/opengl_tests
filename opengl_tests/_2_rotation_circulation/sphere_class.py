@@ -2,6 +2,8 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 from opengl_tests._2_rotation_circulation.ellipse_class import *
+from opengl_tests._2_rotation_circulation.line_of_rotation_class import *
+
 
 import numpy as np
 
@@ -17,12 +19,22 @@ class Sphere:
                  center=np.array([0, 0, 0]),
                  vec_maj=np.array([10, 0, 0]),
                  vec_min=np.array([0, 10, 0]),
-                 e_c=[1, 1, 1]):
+                 e_c=[1, 1, 1],
+                 rot_axis_vec =np.array([4, 9.24345, 0]), # vector equivalent to earth's tilt
+                 r_axis_c=np.array([1,1,1]),
+                 deg_per_rot=0.1
+                 ):
         self.build_sphere_coords(radius, x_i, y_i, z_i, x_c, y_c, z_c)
 
         ellipse_going_around = Ellipse(center, vec_maj, vec_min, e_c)
         self.e_coords = ellipse_going_around.coords
         self.e_vbo = ellipse_going_around.vbo
+
+        line_of_rotation = LineOfRotation(rot_axis_vec, np.array([x_i, y_i, z_i]), r_axis_c)
+        self.l_coords = line_of_rotation.data
+        self.l_vbo = line_of_rotation.vbo
+        self.r_axis_vec = line_of_rotation.unit_vec
+        self.deg_per_rot = deg_per_rot
 
         self.vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
