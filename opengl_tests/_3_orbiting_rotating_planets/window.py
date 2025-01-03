@@ -22,7 +22,7 @@ class solar_system:
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
-        self.zoom = 30    # 185
+        self.zoom = 50    # 185
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
         
@@ -123,8 +123,8 @@ class solar_system:
             for b in range(num_b):
                 bh = self.bodies[b]
                 num_planets = np.random.randint(3, 7)
-                num_planets = 1
-                pos_range = list(range(-19, 21, 7))
+                #num_planets = 1
+                pos_range = list(range(-39, 41, 7))
                 for i in range(num_planets):
                     r = np.random.randint(2, 3)-np.random.random()
                     planet = Sphere(
@@ -239,17 +239,6 @@ class solar_system:
                     p.curr_v = p.next_v
                     p.curr_a = p.next_a
 
-                    # rotation of the sphere by angle theta in radians
-                    if type(p) != BlackHole:
-                        theta = p.rad_per_rot
-                        for i in range(len(p.data)):
-                            p.data[i, :3] = np.matmul(
-                                (p.data[i, :3] - p.curr_s), (np.array((
-                                    [np.cos(theta), -np.sin(theta), 0],
-                                    [np.sin(theta), np.cos(theta), 0],
-                                    [0, 0, 1])))
-                            ) + p.curr_s
-
                     # updates trail position based newly previous s
                     p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
                     p.trail_s[0, :3] = p.prev_s[:3]
@@ -258,11 +247,22 @@ class solar_system:
                     for i in range(len(p.data)):
                         p.data[i, :3] = p.data[i, :3] - p.prev_s + p.curr_s
 
+                    #rotation of the sphere by angle theta in radians
+                    if type(p) != BlackHole:
+                       theta = p.rad_per_rot
+                       for i in range(len(p.data)):
+                           p.data[i, :3] = np.matmul(
+                               (p.data[i, :3] - p.curr_s), (np.array((
+                                   [np.cos(theta), -np.sin(theta), 0],
+                                   [np.sin(theta), np.cos(theta), 0],
+                                   [0, 0, 1])))
+                           ) + p.curr_s
+
                     # resets the black hole to the origin (keeps it still)
                     if type(p) == BlackHole:
                         p.curr_a, p.curr_v, p.curr_s = (np.array([0, 0, 0]),)*3
 
-                    # rotates the sphere about its center
+                    # moves the axis line with the planet
                     if type(p) != BlackHole:
                         p.l_coords[0][:3] = p.curr_s + 5*p.r_axis_vec
                         p.l_coords[1][:3] = p.curr_s - 5*p.r_axis_vec
