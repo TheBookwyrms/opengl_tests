@@ -14,10 +14,10 @@ import time
 
 class rotation_circulation_of_sphere_test:
     def __init__(self):
-        self.angle_x, self.angle_y, self.angle_z = 0, 0, 90 # degrees?
+        self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
-        self.zoom = 30 # 185
+        self.zoom = 6 # 30    # 185
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
         
@@ -113,34 +113,7 @@ class rotation_circulation_of_sphere_test:
 
     
 
-    def main(self, G=0.106743): # G=0.106743 , G=1
-        def gen_planets():
-            num_planets = np.random.randint(3, 7)
-            pos_range = list(range(-39, 41, 7))
-            for i in range(num_planets):
-                r = np.random.randint(2, 3)-np.random.random()
-                planet = Sphere(
-                    radius=r,
-                    x_i=np.random.choice(pos_range),
-                    y_i=np.random.choice(pos_range),
-                    z_i=np.random.choice(pos_range),
-                    x_c=[np.random.random(), np.random.random(), np.random.random()],
-                    y_c=[np.random.random(), np.random.random(), np.random.random()],
-                    z_c=[np.random.random(), np.random.random(), np.random.random()],
-                    )
-                
-                # generates velocity of planet based on velocity required to make
-                # a circular orbit around the black hole, were it only the gravity
-                # of the black hole and no others acting upon it
-                planet.curr_v =np.roll(
-                    np.sqrt((
-                        (planet.curr_s-[0,0,0])**2 * G * 80 / (np.linalg.norm(planet.curr_s-[0,0,0]))**3
-                        )),
-                    shift=1)
-                
-                self.bodies.append(planet)
-
-
+    def main(self, G=0.106743):
         if not glfw.init():
             return
         
@@ -152,40 +125,88 @@ class rotation_circulation_of_sphere_test:
         self.bodies = []
         xyz_axis = axes()
 
-        #gen_planets()
-        r = np.random.randint(2, 3)-np.random.random()
-        planet = Sphere(
-            radius=r,
-            x_i=0,
-            y_i=10,
-            z_i=0,
-            x_c=[np.random.random(), np.random.random(), np.random.random()],
-            y_c=[np.random.random(), np.random.random(), np.random.random()],
-            z_c=[np.random.random(), np.random.random(), np.random.random()],
-            center=np.array([0, 0, 0]),
-            vec_maj=np.array([20, 0, 10]),
-            vec_min=np.array([-9, 18, -4.3]),
-            e_c=[1, 1, 1]
-            )
-        
-        # generates velocity of planet based on velocity required to make
-        # a circular orbit around the black hole, were it only the gravity
-        # of the black hole and no others acting upon it
-        planet.curr_v =np.roll(
-            (0, 0, np.sqrt(8)),
-            shift=1)
-        
-        self.bodies.append(planet)
+        self.circulation, self.rotation = (False,)*2
 
-        # adjusts position of sphere so it is on the ellipse,
-        # if the ellipse is at [0, 0, 0]
-        #  if the sphere is at [0, 0, 0]
-        for i in range(len(planet.data)):
-            planet.data[i, 0] -= planet.e_coords[0][0]
-            planet.data[i, 1] -= planet.e_coords[0][2]
-            planet.data[i, 2] -= planet.e_coords[0][2]
-            
-        
+
+        def create_planet_on_ellipse():
+            r = np.random.randint(2, 3)-np.random.random()
+            center = np.array([10, 0, 0])
+            v_maj = np.array([2, 9, 4])
+            v_min = np.array([-15, -6, -7])
+            theta_deg = 45
+            th_r = np.radians(theta_deg)
+
+            planet = Sphere(
+                radius = r,
+                x_i = center[0] + np.cos(th_r)*v_maj[0] + np.sin(th_r)*v_min[0],
+                y_i = center[1] + np.cos(th_r)*v_maj[1] + np.sin(th_r)*v_min[1],
+                z_i = center[2] + np.cos(th_r)*v_maj[2] + np.sin(th_r)*v_min[2],
+                x_c = [np.random.random(), np.random.random(), np.random.random()],
+                y_c = [np.random.random(), np.random.random(), np.random.random()],
+                z_c = [np.random.random(), np.random.random(), np.random.random()],
+                center = center,
+                vec_maj = v_maj,
+                vec_min = v_min,
+                e_c = [1, 1, 1]
+                )
+
+            self.bodies.append(planet)
+
+            '''
+            len(planet.e_coords)//y = theta_deg
+            shift = x*theta_deg
+            x/y = 3/8
+
+            shift = x * len(planet.e_coords)//y
+            8x = 3y
+            y = 8x/3
+            shift = x * (len(planet.e_coords)//(8x/3))
+            shift = 3 * x * (len(planet.e_coords)//8x)
+            shift = 3 * (len(planet.e_coords)//8)
+
+            360//y=30
+            360/theta_deg = y
+
+
+
+            '''
+
+            #   0.5/1 works for theta_deg of  1°
+            #   3/8   works for theta_deg of 45°
+            #   5/12  works for theta_deg of 30°
+            #   1/3   works for theta_deg of 60°
+            planet.e_coords = np.roll(planet.e_coords, shift=3*len(planet.e_coords)//8, axis=0)
+
+            self.circulation = True
+
+
+        def create_rotating_planet():
+            r = np.random.randint(2, 3)-np.random.random()
+            planet = Sphere(
+                radius = r,
+                x_i = 0,
+                y_i = 0,
+                z_i = 0,
+                x_c = [np.random.random(), np.random.random(), np.random.random()],
+                y_c = [np.random.random(), np.random.random(), np.random.random()],
+                z_c = [np.random.random(), np.random.random(), np.random.random()],
+                e_c = [1, 1, 1]
+                )
+
+            self.rotation = True
+
+            a, x, b = 1, np.linspace(-1023, 1023, num=60000), 0
+            #print(x)
+            planet.axis_of_rotation = a*x+b
+
+            self.bodies.append(planet)
+
+
+
+        #create_planet_on_ellipse()            
+        create_rotating_planet()
+
+
         dt = 0
         start = time.time()
         current = time.time()
@@ -201,35 +222,41 @@ class rotation_circulation_of_sphere_test:
           
             for p in self.bodies:
                 draw(p.vertices, p.vbo, GL_POINTS) # draws sphere
-                draw(p.trail_s, p.trail_vbo, GL_LINE_STRIP) # draws trails
-                draw(p.e_coords, p.e_vbo, GL_POINTS)
+                #draw(p.trail_s, p.trail_vbo, GL_LINE_STRIP) # draws trails
                 
                 if not self.paused:
-                    p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
-                    p.trail_s[0][0] = p.curr_s[0]
-                    p.trail_s[0][1] = p.curr_s[1]
-                    p.trail_s[0][2] = p.curr_s[2]
 
-                    
-                    p.e_coords = np.roll(p.e_coords, shift=1, axis=0)
-                    normal_to_ellipse = np.array([5, 0, 0])
+                    if self.circulation:
+                        draw(p.e_coords, p.e_vbo, GL_POINTS)
+                        p.e_coords = np.roll(p.e_coords, shift=1, axis=0)                   
 
-                    for i in range(len(p.data)):
-                        p.data[i, 0] = p.data[i, 0] - p.e_coords[-1][0] + p.e_coords[0][0]# + normal_to_ellipse[0]
-                        p.data[i, 1] = p.data[i, 1] - p.e_coords[-1][1] + p.e_coords[0][1]# + normal_to_ellipse[1]
-                        p.data[i, 2] = p.data[i, 2] - p.e_coords[-1][2] + p.e_coords[0][2]# + normal_to_ellipse[2]
+                        for i in range(len(p.data)):
+                            p.data[i, 0] = p.data[i, 0] - p.e_coords[-1][0] + p.e_coords[0][0]
+                            p.data[i, 1] = p.data[i, 1] - p.e_coords[-1][1] + p.e_coords[0][1]
+                            p.data[i, 2] = p.data[i, 2] - p.e_coords[-1][2] + p.e_coords[0][2]
 
-                    #for i in range(len(p.data)):
-                    #    p.data[i, 0] +=0.1# + normal_to_ellipse[0]
-                    #    p.data[i, 1] += 1# + normal_to_ellipse[1]
-                        #p.data[i, 2] = p.data[i, 2] - p.e_coords[-1][2] + p.e_coords[0][2]# + normal_to_ellipse[2]
+                        p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
+                        p.trail_s[0][0] = p.curr_s[0]
+                        p.trail_s[0][1] = p.curr_s[1]
+                        p.trail_s[0][2] = p.curr_s[2]
 
-                    #print(p.vertices)
-                    #print(p.data)
-                    #print()
+                        p.update_point_and_trail_vbo()
 
-
-                    p.update_point_and_trail_vbo()
+                    if self.rotation:
+                        vec_k_axis_of_rotation = np.array([4, 9.24345, 0])
+                        unit_k = vec_k_axis_of_rotation/np.abs(np.linalg.norm(vec_k_axis_of_rotation))
+                        if np.round(np.linalg.norm(unit_k), 10) != 1:
+                            raise ValueError("k is not a unit vector, sphere will expand or contract")
+                        theta = 0.1
+                        for i in range(len(p.data)):
+                            p.data[i, :3] = (p.data[i, :3]*np.cos(theta) +
+                                            np.cross(
+                                                p.data[i, :3], unit_k
+                                            ) * np.sin(theta) +
+                                            unit_k * np.dot(unit_k, p.data[i, :3]) * (1-np.cos(theta))
+                                            )
+                            
+                            p.update_point_and_trail_vbo()
 
             draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
             end = time.time()
