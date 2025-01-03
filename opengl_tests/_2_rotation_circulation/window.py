@@ -17,7 +17,7 @@ class rotation_circulation_of_sphere_test:
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
-        self.zoom = 10 # 30    # 185
+        self.zoom = 8 # 10 # 30    # 185
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
         
@@ -196,6 +196,7 @@ class rotation_circulation_of_sphere_test:
 
             self.rotation = True
 
+
             self.bodies.append(planet)
 
 
@@ -242,16 +243,41 @@ class rotation_circulation_of_sphere_test:
                     if self.rotation:
                         draw(p.l_coords, p.l_vbo, GL_LINES)
 
+
                         theta = p.deg_per_rot
                         for i in range(len(p.data)):
-                            p.data[i, :3] = (p.data[i, :3]*np.cos(theta) +
-                                            np.cross(
-                                                p.data[i, :3], p.r_axis_vec
-                                            ) * np.sin(theta) +
-                                            p.r_axis_vec * np.dot(p.r_axis_vec, p.data[i, :3]) * (1-np.cos(theta))
-                                            )
-                            
+                            p.data[i, :3] = np.matmul(
+                                (p.data[i, :3] - p.curr_s), (np.array((
+                                    [np.cos(theta), -np.sin(theta), 0],
+                                    [np.sin(theta), np.cos(theta), 0],
+                                    [0, 0, 1])))
+                            ) + p.curr_s
+
+
+                            #p.data[i, :3] = (p.data[i, :3]*np.cos(theta) +
+                            #                np.cross(
+                            #                    p.data[i, :3], p.r_axis_vec
+                            #                ) * np.sin(theta) +
+                            #                p.r_axis_vec * np.dot(
+                            #                    p.r_axis_vec, p.data[i, :3]
+                            #                    ) * (1-np.cos(theta))
+                            #                )
+                        
+                        
+                                # rotation_data =  (p.data[i, :3]*np.cos(theta) +
+                                #                 np.cross(
+                                #                     p.data[i, :3], p.r_axis_vec
+                                #                 ) * np.sin(theta) +
+                                #                 p.r_axis_vec * np.dot(p.r_axis_vec, p.data[i, :3]) * (1-np.cos(theta))
+                                #                 )
+
+                                # p.data[i, 0] = rotation_data[0]
+                                # p.data[i, 1] = rotation_data[1]
+                                # p.data[i, 2] = rotation_data[2]
+
+                           
                             p.update_point_and_trail_vbo()
+
 
             draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
             end = time.time()

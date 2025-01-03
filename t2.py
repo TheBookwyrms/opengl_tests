@@ -5,4 +5,5 @@ a = np.array([
     [4, 5, 6],
     [7, 8, 9]
 ])
-print(np.roll(a, shift=1, axis=0))
+b = np.array([1, 4, 7])
+print(np.matmul(a, b))
