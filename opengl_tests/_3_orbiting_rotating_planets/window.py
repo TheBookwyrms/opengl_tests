@@ -4,6 +4,9 @@ from glfw.GLFW import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+import imgui
+from imgui.integrations.glfw import GlfwRenderer
+
 import numpy as np
 
 from opengl_tests._3_orbiting_rotating_planets.ellipse_class import *
@@ -158,6 +161,10 @@ class solar_system:
             return
         
         window = self.build_window()
+        
+        imgui.create_context()
+        imgui.get_io().display_size = 100,100
+        self.imgui_use = GlfwRenderer(window, attach_callbacks=False)
 
         glClearColor(0.1, 0.1, 0.1, 1)
         glEnable(GL_DEPTH_TEST)
@@ -276,6 +283,27 @@ class solar_system:
                         p.l_coords[1][:3] = p.curr_s - 5*p.r_axis_vec
                         
                     p.vbos()
+
+            def imgui_stuff():
+                imgui.new_frame()
+                imgui.begin("solar system")
+
+                # dt = 1F / xs
+                # 1/x = y/1
+                # xy = 1
+                # 1/x = y
+                # 1/dt = fps
+                if dt != 0:
+                    imgui.text(f'{1/dt} fps')
+
+                imgui.end()
+
+
+                imgui.render()
+                self.imgui_use.process_inputs()
+                self.imgui_use.render(imgui.get_draw_data())
+
+            imgui_stuff()
 
             draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
             draw(bkg.data, bkg.vbo, GL_POINTS) # draws background stars
