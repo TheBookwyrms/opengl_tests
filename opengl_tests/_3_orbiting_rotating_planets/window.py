@@ -12,7 +12,7 @@ import numpy as np
 from opengl_tests._3_orbiting_rotating_planets.ellipse_class import *
 from opengl_tests._3_orbiting_rotating_planets.line_of_rotation_class import *
 from opengl_tests._3_orbiting_rotating_planets.sphere_class import *
-from opengl_tests._3_orbiting_rotating_planets.vbo_and_render import *
+from opengl_tests._3_orbiting_rotating_planets.vbo_stuff import *
 from opengl_tests._3_orbiting_rotating_planets.xyz_axis import *
 from opengl_tests._3_orbiting_rotating_planets.background_stars_class import *
 from opengl_tests._3_orbiting_rotating_planets.black_hole_class import *
@@ -130,7 +130,7 @@ class solar_system:
             for b in range(num_b):
                 bh = self.bodies[b]
                 num_planets = np.random.randint(3, 7)
-                #num_planets = 1
+                num_planets = 1
                 pos_range = list(range(-39, 41, 7))
                 for i in range(num_planets):
                     r = np.random.randint(2, 3)-np.random.random()
@@ -161,6 +161,13 @@ class solar_system:
                     
                     self.bodies.append(planet)
 
+                    
+                    theta = planet.rad_per_rot
+                    planet.rot_mat = np.array((
+                                [np.cos(theta), -np.sin(theta), 0],
+                                [np.sin(theta), np.cos(theta), 0],
+                                [0, 0, 1]))
+
         if not glfw.init():
             return
         
@@ -187,6 +194,7 @@ class solar_system:
         self.bodies.append(black_hole)
 
         gen_planets()
+
 
         dt = 0
         start = time.time()
@@ -226,9 +234,9 @@ class solar_system:
                         if dist_vec_mag < other.radius:
                             planet.m += other.m
                             #planet.curr_v += other.curr_v
-                            self.bodies.pop(index)
+                            self.bodies.pop(i)
                         elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
-                            self.bodies.pop(index)
+                            self.bodies.pop(i)
 
                     if planet.m != 0:
                         Fg = G * planet.m * other.m / (dist_vec_mag**2)
@@ -271,11 +279,8 @@ class solar_system:
                        theta = p.rad_per_rot
                        for i in range(len(p.data)):
                            p.data[i, :3] = np.matmul(
-                               (p.data[i, :3] - p.curr_s), (np.array((
-                                   [np.cos(theta), -np.sin(theta), 0],
-                                   [np.sin(theta), np.cos(theta), 0],
-                                   [0, 0, 1])))
-                           ) + p.curr_s
+                               (p.data[i, :3] - p.curr_s), (p.rot_mat)
+                               ) + p.curr_s
 
                     # resets the black hole to the origin (keeps it still)
                     if type(p) == BlackHole:
@@ -286,7 +291,7 @@ class solar_system:
                         p.l_coords[0][:3] = p.curr_s + 5*p.r_axis_vec
                         p.l_coords[1][:3] = p.curr_s - 5*p.r_axis_vec
                         
-                    p.vbos()
+                    update_vbo(p)
 
             def imgui_stuff():
                 imgui.new_frame()

@@ -1,16 +1,16 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+from opengl_tests._3_orbiting_rotating_planets.vbo_stuff import *
+
 import numpy as np
 
 class BlackHole:
     def __init__(self, radius=1, x_i=0, y_i=0, z_i=0, x_c=[0,0,0], y_c=[0,0,0], z_c=[0,0,0]):
         self.build_sphere_coords(radius, x_i, y_i, z_i, x_c, y_c, z_c)
 
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.data.nbytes, self.data, GL_DYNAMIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+        self.vbo = make_vbo(self.data)
 
 
         self.radius = radius
@@ -25,10 +25,9 @@ class BlackHole:
         self.next_a = np.array([0, 0, 0], dtype=np.float32)
 
         self.trail_s = np.array(([x_i, y_i, z_i, 0, 0, 0],)*2048, dtype=np.float32)
-        self.trail_vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.trail_s.nbytes, self.trail_s, GL_DYNAMIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        
+        self.trail_vbo = make_vbo(self.trail_s)
+
 
     def build_sphere_coords(self, radius, x, y, z, xc, yc, zc):
         heights = np.linspace(0, 2*radius, num=10)
@@ -67,13 +66,3 @@ class BlackHole:
         data[:, :3] = vertices
         data[:, 3:] = colours
         self.data = data
-
-    def vbos(self):
-
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, self.data.nbytes, self.data)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, self.trail_s.nbytes, self.trail_s)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)

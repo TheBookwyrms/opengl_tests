@@ -3,6 +3,37 @@ from OpenGL.GLU import *
 
 import numpy as np
 
+
+def make_vbo(data):
+     
+    vbo = glGenBuffers(1)
+    glBindBuffer(GL_ARRAY_BUFFER, vbo)
+    glBufferData(GL_ARRAY_BUFFER, data.nbytes, data, GL_DYNAMIC_DRAW)
+    glBindBuffer(GL_ARRAY_BUFFER, 0)
+    return vbo
+
+
+def update_vbo(class_instance):
+    try:
+        glBindBuffer(GL_ARRAY_BUFFER, class_instance.vbo)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, class_instance.data.nbytes, class_instance.data)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+    except:
+        pass
+    try:
+        glBindBuffer(GL_ARRAY_BUFFER, class_instance.trail_vbo)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, class_instance.trail_s.nbytes, class_instance.trail_s)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+    except:
+        pass
+    try:
+        glBindBuffer(GL_ARRAY_BUFFER, class_instance.l_vbo)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, class_instance.l_coords.nbytes, class_instance.l_coords)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+    except:
+        pass
+
+
 def draw(point_data, point_vbo, draw_type):
         n_per_vertice = 3
         n_per_colour = 3

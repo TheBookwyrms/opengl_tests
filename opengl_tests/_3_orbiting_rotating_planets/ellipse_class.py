@@ -1,6 +1,8 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+from opengl_tests._3_orbiting_rotating_planets.vbo_stuff import *
+
 import numpy as np
 
 class Ellipse:
@@ -12,10 +14,7 @@ class Ellipse:
 
         self.build_ellipse_coords(center, vec_maj, vec_min, c)
 
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.coords.nbytes, self.coords, GL_DYNAMIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        self.vbo = make_vbo(self.coords)
 
     def build_ellipse_coords(self, center, vec_maj, vec_min, c):
 

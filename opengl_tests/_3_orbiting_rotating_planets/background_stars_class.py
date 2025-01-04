@@ -1,16 +1,15 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+from opengl_tests._3_orbiting_rotating_planets.vbo_stuff import *
+
 import numpy as np
 
 class BackgroundStars:
     def __init__(self, radius=1023, x_i=0, y_i=0, z_i=0, x_c=[1,1,1], y_c=[1,1,1], z_c=[1,1,1]):
         self.build_sphere_coords(radius, x_i, y_i, z_i, x_c, y_c, z_c)
 
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.data.nbytes, self.data, GL_DYNAMIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        self.vbo = make_vbo(self.data)
 
     def build_sphere_coords(self, radius, x, y, z, xc, yc, zc):
         # generates a thin sphere around at the edges of the rendering

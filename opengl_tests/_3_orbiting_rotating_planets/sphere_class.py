@@ -3,6 +3,7 @@ from OpenGL.GLU import *
 
 from opengl_tests._3_orbiting_rotating_planets.ellipse_class import *
 from opengl_tests._3_orbiting_rotating_planets.line_of_rotation_class import *
+from opengl_tests._3_orbiting_rotating_planets.vbo_stuff import *
 
 import numpy as np
 
@@ -35,11 +36,9 @@ class Sphere:
         self.r_axis_vec = line_of_rotation.unit_vec
         self.deg_per_rot = deg_per_rot
         self.rad_per_rot = np.radians(deg_per_rot)
+        
 
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.data.nbytes, self.data, GL_DYNAMIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        self.vbo = make_vbo(self.data)
 
 
         self.radius = radius
@@ -53,10 +52,9 @@ class Sphere:
         self.next_a = np.array([0, 0, 0], dtype=np.float32)
 
         self.trail_s = np.array(([x_i, y_i, z_i, 1, 1, 1],)*512, dtype=np.float32)
-        self.trail_vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.trail_s.nbytes, self.trail_s, GL_DYNAMIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+        self.trail_vbo = make_vbo(self.trail_s)
+
 
     def build_sphere_coords(self, radius, x, y, z, xc, yc, zc):
         heights = np.linspace(0, 2*radius, num=10)
@@ -104,19 +102,3 @@ class Sphere:
             self.data[i, 0] = ellipse_data[0][0] + normal_to_ellipse
             self.data[i, 1] = ellipse_data[0][1] + normal_to_ellipse
             self.data[i, 2] = ellipse_data[0][2] + normal_to_ellipse
-
-
-
-    def vbos(self):
-
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, self.data.nbytes, self.data)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-        glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, self.trail_s.nbytes, self.trail_s)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-        glBindBuffer(GL_ARRAY_BUFFER, self.l_vbo)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, self.l_coords.nbytes, self.l_coords)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
