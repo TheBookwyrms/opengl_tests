@@ -1,7 +1,7 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-from opengl_tests._3_orbiting_rotating_planets.vbo_stuff import *
+from opengl_tests._3_solar_system.vbo_stuff import *
 
 import numpy as np
 

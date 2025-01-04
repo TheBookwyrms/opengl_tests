@@ -6,4 +6,17 @@ a = np.array([
     [7, 8, 9]
 ])
 b = np.array([1, 4, 7])
-print(np.matmul(a, b))
+#print(np.matmul(a, b))
+
+
+class a:
+    def __init__(self):
+        self.test = 1
+
+class b(a):
+    def __init__(self):
+        super().__init__()
+
+one=a()
+two=b()
+print(one.test, two.test)

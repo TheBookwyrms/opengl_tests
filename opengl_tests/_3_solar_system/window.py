@@ -9,23 +9,27 @@ from imgui.integrations.glfw import GlfwRenderer
 
 import numpy as np
 
-from opengl_tests._3_orbiting_rotating_planets.ellipse_class import *
-from opengl_tests._3_orbiting_rotating_planets.line_of_rotation_class import *
-from opengl_tests._3_orbiting_rotating_planets.sphere_class import *
-from opengl_tests._3_orbiting_rotating_planets.vbo_stuff import *
-from opengl_tests._3_orbiting_rotating_planets.xyz_axis import *
-from opengl_tests._3_orbiting_rotating_planets.background_stars_class import *
-from opengl_tests._3_orbiting_rotating_planets.black_hole_class import *
+from opengl_tests._3_solar_system.object_classes.ellipse_class import *
+from opengl_tests._3_solar_system.object_classes.line_of_rotation_class import *
+from opengl_tests._3_solar_system.object_classes.sphere_class import *
+from opengl_tests._3_solar_system.object_classes.xyz_axis import *
+from opengl_tests._3_solar_system.object_classes.background_stars_class import *
+
+from opengl_tests._3_solar_system.celestial_body_classes import *
+
+from opengl_tests._3_solar_system.vbo_stuff import *
+
+from  opengl_tests._3_solar_system.imgui_stuff import *
 
 import time
 
 
-class solar_system:
+class SolarSystem:
     def __init__(self):
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
-        self.zoom = 50    # 185
+        self.zoom = 70    # 185
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
         
@@ -97,7 +101,7 @@ class solar_system:
     
     def mouse_callbacks(self, window, button, action, mods):
         # stops screen panning/rotating if imgui box is moving
-        if self.imgui_use != None and imgui.get_io().want_capture_mouse:
+        if self.imgui_stuff.in_use():
             return
 
         if action == glfw.PRESS:
@@ -126,19 +130,19 @@ class solar_system:
     def main(self, G=0.106743):
 
         def gen_planets():
-            num_b = len(self.bodies)
-            for b in range(num_b):
-                bh = self.bodies[b]
+            num_b_s = len(self.bodies)
+            for b_s in range(num_b_s):
+                bh_or_s = self.bodies[b_s]
                 self.num_planets = np.random.randint(3, 7)
                 #self.num_planets = 1
                 pos_range = list(range(-39, 41, 7))
                 for i in range(self.num_planets):
                     r = np.random.randint(2, 3)-np.random.random()
-                    planet = Sphere(
+                    planet = Planet(
                         radius=r,
-                        x_i=np.random.choice(pos_range)+bh.curr_s[0],
-                        y_i=np.random.choice(pos_range)+bh.curr_s[1],
-                        z_i=np.random.choice(pos_range)+bh.curr_s[2],
+                        x_i=np.random.choice(pos_range)+bh_or_s.curr_s[0],
+                        y_i=np.random.choice(pos_range)+bh_or_s.curr_s[1],
+                        z_i=np.random.choice(pos_range)+bh_or_s.curr_s[2],
                         #x_i=0,
                         #y_i=10,
                         #z_i=0,
@@ -155,45 +159,58 @@ class solar_system:
                     # of the black hole and no others acting upon it
                     planet.curr_v =np.roll(
                         np.sqrt((
-                            (planet.curr_s-bh.curr_s)**2 * G * bh.m / (np.linalg.norm(planet.curr_s-bh.curr_s))**3
+                            (planet.curr_s-bh_or_s.curr_s)**2 * G * bh_or_s.m / (np.linalg.norm(planet.curr_s-bh_or_s.curr_s))**3
                             )),
                         shift=1)
                     
                     self.bodies.append(planet)
 
-                    
-                    theta = planet.rad_per_rot
-                    planet.rot_mat = np.array((
-                                [np.cos(theta), -np.sin(theta), 0],
-                                [np.sin(theta), np.cos(theta), 0],
-                                [0, 0, 1]))
-
         if not glfw.init():
             return
         
+
+        self.imgui_stuff = ImguiStuff()
+
         window = self.build_window()
         
-        imgui.create_context()
-        imgui.get_io().display_size = 100,100
-        self.imgui_use = GlfwRenderer(window, attach_callbacks=False)
+        self.imgui_stuff.initiate_imgui(window)
 
-        glClearColor(0.1, 0.1, 0.1, 1)
+
+        glClearColor(0.05, 0.05, 0.05, 1)
         glEnable(GL_DEPTH_TEST)
 
         self.bodies = []
-        xyz_axis = axes()
+        #xyz_axis = axes()
 
         bkg = BackgroundStars()
 
         self.bodies = []
 
         black_hole = BlackHole(radius=2,
-                               x_i=0,
-                               y_i=0,
-                               z_i=0)
+                               x_i=30,
+                               y_i=30,
+                               z_i=30)
+        bh_masses = list(range(1600, 2800, 50))
+        black_hole.m = np.random.choice(bh_masses)
         self.bodies.append(black_hole)
 
+
+        star = Star(radius=2,
+                    x_i=-30,
+                    y_i=-30,
+                    z_i=-30)
+        s_masses = list(range(800, 2400, 50))
+        star.m = np.random.choice(s_masses)
+        self.bodies.append(star)
+
         gen_planets()
+
+        for body in self.bodies:
+            theta = body.rad_per_rot
+            body.rot_mat = np.array((
+                        [np.cos(theta), -np.sin(theta), 0],
+                        [np.sin(theta), np.cos(theta), 0],
+                        [0, 0, 1]))
 
 
         dt = 0
@@ -211,8 +228,6 @@ class solar_system:
           
             for p in self.bodies:
                 draw(p.data, p.vbo, GL_POINTS) # draws sphere
-                #draw(p.trail_s, p.trail_vbo, GL_LINE_STRIP) # draws trails
-
                 
             # force on each planet due to gravity calculations
             for i, planet in enumerate(self.bodies):
@@ -228,23 +243,18 @@ class solar_system:
                             planet.m += other.m
                             #planet.curr_v += other.curr_v
                             self.bodies.pop(index)
-                            self.num_planets -= 1
-                        elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
-                            self.bodies.pop(index)
-                            self.num_planets -= 1
                     elif type(other) == BlackHole:
                         if dist_vec_mag < other.radius:
                             planet.m += other.m
                             #planet.curr_v += other.curr_v
                             self.bodies.pop(i)
-                            self.num_planets -= 1
-                        elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
-                            self.bodies.pop(i)
-                            self.num_planets -= 1
+                        
+                    if np.linalg.norm(planet.curr_s) > 1024:
+                        self.bodies.pop(i)
+
 
                     if planet.m != 0:
                         Fg = G * planet.m * other.m / (dist_vec_mag**2)
-                        #print(dist_vec, dist_vec_mag, Fg)
                         Fa = dist_vec / dist_vec_mag * Fg
                         planet.next_a += Fa
 
@@ -257,9 +267,7 @@ class solar_system:
             for p in self.bodies:
                 draw(p.vertices, p.vbo, GL_POINTS) # draws sphere
                 draw(p.trail_s, p.trail_vbo, GL_LINE_STRIP) # draws trails
-                if type(p) != BlackHole:
-                    draw(p.l_coords, p.l_vbo, GL_LINES)
-                    #draw(p.e_coords, p.e_vbo, GL_POINTS)
+                #draw(p.l_coords, p.l_vbo, GL_LINES) # draws line of axis of rotation
 
                 
                 if not self.paused:  
@@ -279,48 +287,27 @@ class solar_system:
                         p.data[i, :3] = p.data[i, :3] - p.prev_s + p.curr_s
 
                     #rotation of the sphere by angle theta in radians
-                    if type(p) != BlackHole:
-                       theta = p.rad_per_rot
-                       for i in range(len(p.data)):
-                           p.data[i, :3] = np.matmul(
-                               (p.data[i, :3] - p.curr_s), (p.rot_mat)
-                               ) + p.curr_s
+                    theta = p.rad_per_rot
+                    for i in range(len(p.data)):
+                       p.data[i, :3] = np.matmul(
+                           (p.data[i, :3] - p.curr_s), (p.rot_mat)
+                            ) + p.curr_s
 
-                    # resets the black hole to the origin (keeps it still)
-                    if type(p) == BlackHole:
-                        p.curr_a, p.curr_v, p.curr_s = (np.array([0, 0, 0]),)*3
+                    # resets black holes and stars to their original position
+                    if (type(p) == BlackHole) or (type(p) == Star):
+                        p.curr_a, p.curr_v, p.curr_s = np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([p.x_i, p.y_i, p.z_i])
 
-                    # moves the axis line with the planet
-                    if type(p) != BlackHole:
-                        p.l_coords[0][:3] = p.curr_s + 5*p.r_axis_vec
-                        p.l_coords[1][:3] = p.curr_s - 5*p.r_axis_vec
+                    ## moves the axis line with the planet
+                    #p.l_coords[0][:3] = p.curr_s + 5*p.r_axis_vec
+                    #p.l_coords[1][:3] = p.curr_s - 5*p.r_axis_vec
                         
                     update_vbo(p)
 
-            def imgui_stuff():
-                imgui.new_frame()
-                imgui.begin("solar system")
 
-                # dt = 1F / xs
-                # 1/x = y/1
-                # xy = 1
-                # 1/x = y
-                # 1/dt = fps
-                if dt != 0:
-                    imgui.text(f'{1/dt} fps')
-                imgui.text(f'{self.num_planets} planets')
-                imgui.text(f'{len(self.bodies)-self.num_planets} black hole(s)')
+            self.imgui_stuff.imgui_box(dt, self.bodies)
+            self.imgui_stuff.render_box()
 
-                imgui.end()
-
-
-                imgui.render()
-                self.imgui_use.process_inputs()
-                self.imgui_use.render(imgui.get_draw_data())
-
-            imgui_stuff()
-
-            draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
+            #draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
             draw(bkg.data, bkg.vbo, GL_POINTS) # draws background stars
             end = time.time()
             dt = end-current
