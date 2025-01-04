@@ -96,6 +96,10 @@ class solar_system:
         self.last_x, self.last_y = xpos, ypos
     
     def mouse_callbacks(self, window, button, action, mods):
+        # stops screen panning/rotating if imgui box is moving
+        if self.imgui_use != None and imgui.get_io().want_capture_mouse:
+            return
+
         if action == glfw.PRESS:
             if button == glfw.MOUSE_BUTTON_LEFT:
                 self.panning = True
