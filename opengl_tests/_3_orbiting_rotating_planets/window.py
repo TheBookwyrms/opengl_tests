@@ -129,10 +129,10 @@ class solar_system:
             num_b = len(self.bodies)
             for b in range(num_b):
                 bh = self.bodies[b]
-                num_planets = np.random.randint(3, 7)
-                num_planets = 1
+                self.num_planets = np.random.randint(3, 7)
+                #self.num_planets = 1
                 pos_range = list(range(-39, 41, 7))
-                for i in range(num_planets):
+                for i in range(self.num_planets):
                     r = np.random.randint(2, 3)-np.random.random()
                     planet = Sphere(
                         radius=r,
@@ -228,15 +228,19 @@ class solar_system:
                             planet.m += other.m
                             #planet.curr_v += other.curr_v
                             self.bodies.pop(index)
+                            self.num_planets -= 1
                         elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
                             self.bodies.pop(index)
+                            self.num_planets -= 1
                     elif type(other) == BlackHole:
                         if dist_vec_mag < other.radius:
                             planet.m += other.m
                             #planet.curr_v += other.curr_v
                             self.bodies.pop(i)
+                            self.num_planets -= 1
                         elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
                             self.bodies.pop(i)
+                            self.num_planets -= 1
 
                     if planet.m != 0:
                         Fg = G * planet.m * other.m / (dist_vec_mag**2)
@@ -304,6 +308,8 @@ class solar_system:
                 # 1/dt = fps
                 if dt != 0:
                     imgui.text(f'{1/dt} fps')
+                imgui.text(f'{self.num_planets} planets')
+                imgui.text(f'{len(self.bodies)-self.num_planets} black hole(s)')
 
                 imgui.end()
 
