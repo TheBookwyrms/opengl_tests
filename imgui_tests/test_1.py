@@ -67,10 +67,18 @@ class t1:
             imgui.new_frame()
 
             # open new window context
-            imgui.begin("Your first window!", True)
+            #imgui.begin("Your first window!", True)
 
             # draw text label inside of current window
-            imgui.text("Hello world!")
+            #imgui.text("Hello world!")
+            imgui.begin("Example: child region")
+
+            imgui.begin_child("region", 150, -50, border=True)
+            imgui.text("inside region")
+            imgui.end_child()
+
+            imgui.text("outside region")# imgui.end()
+
 
             # close current window context
             imgui.end()

@@ -13,7 +13,7 @@ from opengl_tests._1_my_the_force_awakens.vbo_and_render import *
 from opengl_tests._1_my_the_force_awakens.xyz_axis import *
 import time
 
-class window_test_with_openGL:
+class MyForceAwakens:
     def __init__(self):
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 45 # degrees?
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0

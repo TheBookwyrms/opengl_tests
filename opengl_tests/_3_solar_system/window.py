@@ -186,13 +186,14 @@ class SolarSystem:
 
         self.bodies = []
 
-        black_hole = BlackHole(radius=2,
+        star2 = Star(radius=4,
                                x_i=30,
                                y_i=30,
                                z_i=30)
-        bh_masses = list(range(1600, 2800, 50))
-        black_hole.m = np.random.choice(bh_masses)
-        self.bodies.append(black_hole)
+        #bh_masses = list(range(1600, 2800, 50))
+        s_masses = list(range(800, 2400, 50))
+        star2.m = np.random.choice(s_masses)
+        self.bodies.append(star2)
 
 
         star = Star(radius=2,
@@ -211,6 +212,7 @@ class SolarSystem:
                         [np.cos(theta), -np.sin(theta), 0],
                         [np.sin(theta), np.cos(theta), 0],
                         [0, 0, 1]))
+            
 
 
         dt = 0
@@ -243,9 +245,9 @@ class SolarSystem:
                             planet.m += other.m
                             #planet.curr_v += other.curr_v
                             self.bodies.pop(index)
-                    elif type(other) == BlackHole:
+                    elif (type(other) == BlackHole) or (type(other) == Star):
                         if dist_vec_mag < other.radius:
-                            planet.m += other.m
+                            other.m += planet.m
                             #planet.curr_v += other.curr_v
                             self.bodies.pop(i)
                         
@@ -282,35 +284,29 @@ class SolarSystem:
                     p.trail_s = np.roll(p.trail_s, shift=1, axis=0)
                     p.trail_s[0, :3] = p.prev_s[:3]
                     
-                    # updates planet s based on newly previous and current s
-                    for i in range(len(p.data)):
-                        p.data[i, :3] = p.data[i, :3] - p.prev_s + p.curr_s
-
-                    #rotation of the sphere by angle theta in radians
+                    # updates planet s and applies rotation matrix
                     theta = p.rad_per_rot
                     for i in range(len(p.data)):
-                       p.data[i, :3] = np.matmul(
+                        p.data[i, :3] = p.data[i, :3] - p.prev_s + p.curr_s
+                        p.data[i, :3] = np.matmul(
                            (p.data[i, :3] - p.curr_s), (p.rot_mat)
                             ) + p.curr_s
 
                     # resets black holes and stars to their original position
                     if (type(p) == BlackHole) or (type(p) == Star):
                         p.curr_a, p.curr_v, p.curr_s = np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([p.x_i, p.y_i, p.z_i])
-
-                    ## moves the axis line with the planet
-                    #p.l_coords[0][:3] = p.curr_s + 5*p.r_axis_vec
-                    #p.l_coords[1][:3] = p.curr_s - 5*p.r_axis_vec
                         
                     update_vbo(p)
 
 
-            self.imgui_stuff.imgui_box(dt, self.bodies)
+            self.imgui_stuff.imgui_box(dt, self.bodies, self.paused)
             self.imgui_stuff.render_box()
 
             #draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
             draw(bkg.data, bkg.vbo, GL_POINTS) # draws background stars
             end = time.time()
-            dt = end-current
+            if end-current !=0:
+                dt = end-current
             current = end
             glfw.swap_buffers(window)
             glfw.poll_events()
