@@ -179,6 +179,10 @@ class SolarSystem:
         glClearColor(0.05, 0.05, 0.05, 1)
         glEnable(GL_DEPTH_TEST)
 
+        # antialiasing (smoother lines)
+        glEnable(GL_MULTISAMPLE)
+        glEnable(GL_POINT_SMOOTH)
+
         self.bodies = []
         #xyz_axis = axes()
 
