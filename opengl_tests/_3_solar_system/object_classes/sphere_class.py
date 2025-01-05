@@ -22,7 +22,7 @@ class Sphere:
                  e_c=[1, 1, 1],
                  rot_axis_vec =np.array([4, 9.24345, 0]), # vector equivalent to earth's tilt
                  r_axis_c=np.array([1,1,1]),
-                 deg_per_rot=1
+                 deg_per_rot=0.25
                  ):
         self.build_sphere_coords(radius, x_i, y_i, z_i, x_c, y_c, z_c)
 
@@ -51,7 +51,7 @@ class Sphere:
         self.curr_a = np.array([0, 0, 0], dtype=np.float32)
         self.next_a = np.array([0, 0, 0], dtype=np.float32)
 
-        self.trail_s = np.array(([x_i, y_i, z_i, 1, 1, 1],)*512, dtype=np.float32)
+        self.trail_s = np.array(([x_i, y_i, z_i, 1, 1, 1],)*4096, dtype=np.float32)
 
         self.trail_vbo = make_vbo(self.trail_s)
 

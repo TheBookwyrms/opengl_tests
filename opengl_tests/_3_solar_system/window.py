@@ -151,7 +151,7 @@ class SolarSystem:
                         z_c=[np.random.random(), np.random.random(), np.random.random()],
                         rot_axis_vec=np.array([np.random.random(), np.random.random(), np.random.random()]),
                         r_axis_c=np.array([1, 1, 1]),
-                        deg_per_rot=5
+                        deg_per_rot=1
                         )
                     
                     # generates velocity of planet based on velocity required to make
@@ -222,6 +222,8 @@ class SolarSystem:
         self.done = False
         self.paused = False
 
+        position_in_s_trail = 0
+
         while not self.done:
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -285,12 +287,12 @@ class SolarSystem:
                     p.trail_s[0, :3] = p.prev_s[:3]
                     
                     # updates planet s and applies rotation matrix
-                    theta = p.rad_per_rot
-                    for i in range(len(p.data)):
-                        p.data[i, :3] = p.data[i, :3] - p.prev_s + p.curr_s
-                        p.data[i, :3] = np.matmul(
-                           (p.data[i, :3] - p.curr_s), (p.rot_mat)
-                            ) + p.curr_s
+                    #for i in range(len(p.data)):
+                    #    p.data[i, :3] = p.data[i, :3] - p.prev_s + p.curr_s
+                    #    p.data[i, :3] = np.matmul(
+                    #       (p.data[i, :3] - p.curr_s), (p.rot_mat)
+                    #        ) + p.curr_s
+                    p.data[:, :3] = np.matmul((p.data[:, :3] - p.prev_s), (p.rot_mat)) + p.curr_s
 
                     # resets black holes and stars to their original position
                     if (type(p) == BlackHole) or (type(p) == Star):
