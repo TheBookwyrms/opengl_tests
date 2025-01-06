@@ -1,6 +1,4 @@
 __pycache__
 *.pyc
-.mkv
-.mp4
-video_por_abuela.mkv
-video_por_abuela.mp4
+*.mkv
+*.mp4
