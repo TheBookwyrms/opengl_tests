@@ -65,7 +65,7 @@ class SolarSystem:
             glRotatef(i[0], i[1], i[2], i[3])
 
 
-    def build_window(self, window_name="test"):
+    def build_window(self, window_name="Binary System"):
         
         window = glfw.create_window(self.width, self.height, window_name, None, None)
         glfw.make_context_current(window)
@@ -134,7 +134,7 @@ class SolarSystem:
             for b_s in range(num_b_s):
                 bh_or_s = self.bodies[b_s]
                 self.num_planets = np.random.randint(3, 7)
-                #self.num_planets = 1
+                self.num_planets = 14
                 pos_range = list(range(-39, 41, 7))
                 for i in range(self.num_planets):
                     r = np.random.randint(2, 3)-np.random.random()

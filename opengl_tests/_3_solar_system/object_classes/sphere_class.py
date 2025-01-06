@@ -37,7 +37,7 @@ class Sphere:
         self.deg_per_rot = deg_per_rot
         self.rad_per_rot = np.radians(deg_per_rot)
         
-
+        
         self.vbo = make_vbo(self.data)
 
 
