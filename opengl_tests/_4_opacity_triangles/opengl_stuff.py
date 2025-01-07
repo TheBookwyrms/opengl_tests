@@ -6,21 +6,45 @@ import numpy as np
 import time
 
 
-def make_triangle_data():
-    data = []
-    for i in range(3*np.random.randint(10, 15)):
-        data.append([
+class Triangle:
+    def __init__(self):
+        coord_1 = np.array([np.random.randint(-10, 10),
             np.random.randint(-10, 10),
             np.random.randint(-10, 10),
+            np.random.random(),
+            np.random.random(),
+            np.random.random(),
+            np.random.random()])
+        coord_2 = np.array([np.random.randint(-10, 10),
+            np.random.randint(-10, 10),
             np.random.randint(-10, 10),
             np.random.random(),
             np.random.random(),
             np.random.random(),
+            np.random.random()])
+        coord_3 = np.array([np.random.randint(-10, 10),
+            np.random.randint(-10, 10),
+            np.random.randint(-10, 10),
             np.random.random(),
-        ])
+            np.random.random(),
+            np.random.random(),
+            np.random.random()])
+        
+        self.data = np.empty((3, 7), dtype=np.float32)
+        self.data[0] = coord_1
+        self.data[1] = coord_2
+        self.data[2] = coord_3
 
-    data = np.array(data).astype(np.float32)
-    return data
+        self.center = (coord_1[:3] + coord_2[:3] + coord_3[:3])/3
+
+        deg_per_rot = np.array(list(range(int(0.1*100), int(0.5*100), int(0.02*100))))/100
+        theta = np.radians(np.random.choice(deg_per_rot))
+        self.rot_mat = np.array((
+                        [np.cos(theta), -np.sin(theta), 0],
+                        [np.sin(theta), np.cos(theta), 0],
+                        [0, 0, 1]), dtype=np.float32)
+        
+        self.vbo = make_vbo(self.data)
 
 def make_vbo(data):     
     vbo = glGenBuffers(1)
@@ -29,10 +53,25 @@ def make_vbo(data):
     glBindBuffer(GL_ARRAY_BUFFER, 0)
     return vbo
 
+
+
 def make_triangles():
-    data = make_triangle_data()
-    vbo = make_vbo(data)
-    return data, vbo
+    triangles = []
+    for i in range(np.random.randint(10, 15)):
+        triangle = Triangle()
+        triangles.append(triangle)
+
+    return triangles
+
+
+def update(triangle: Triangle):
+    triangle.data[:, :3] = np.matmul((triangle.data[:, :3] - triangle.center), (triangle.rot_mat)) + triangle.center
+    
+    glBindBuffer(GL_ARRAY_BUFFER, triangle.vbo)
+    glBufferSubData(GL_ARRAY_BUFFER, 0, triangle.data.nbytes, triangle.data)
+    glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+    return triangle.data
 
 def draw(point_data, point_vbo, draw_type):
     n_per_vertice = 3

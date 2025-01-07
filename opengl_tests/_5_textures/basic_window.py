@@ -9,14 +9,14 @@ from imgui.integrations.glfw import GlfwRenderer
 
 import numpy as np
 
-from opengl_tests._4_opacity_triangles.imgui_stuff import *
-from opengl_tests._4_opacity_triangles.opengl_stuff import *
+from opengl_tests._5_textures.imgui_stuff import *
+from opengl_tests._5_textures.texture_stuff import *
 
 import time
 
 
 
-class OpacityTriangles:
+class TextureStuff:
     def __init__(self):
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
@@ -31,6 +31,8 @@ class OpacityTriangles:
         self.aspect_ratio = self.width/self.height
 
         self.panning, self.angling = False, False
+
+        self.app_name = str(self).split(".")[-1].split(" ")[0]
 
     
     def update_camera(self):
@@ -57,7 +59,7 @@ class OpacityTriangles:
             glRotatef(i[0], i[1], i[2], i[3])
 
 
-    def build_window(self, window_name="opacity triangles"):
+    def build_window(self, window_name="test"):
         
         window = glfw.create_window(self.width, self.height, window_name, None, None)
         glfw.make_context_current(window)
@@ -125,7 +127,7 @@ class OpacityTriangles:
 
         self.imgui_stuff = ImguiStuff()
 
-        window = self.build_window()
+        window = self.build_window(window_name=self.app_name)
         
         self.imgui_stuff.initiate_imgui(window)
 
@@ -141,8 +143,6 @@ class OpacityTriangles:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
 
-        triangles = make_triangles()
-
         dt = 0
         start = time.time()
         current = time.time()
@@ -156,13 +156,8 @@ class OpacityTriangles:
 
             self.update_camera()
 
-            for t in triangles:
-                draw(t.data, t.vbo, GL_TRIANGLES)
-                t.data = update(t)
 
-
-
-            self.imgui_stuff.imgui_box(dt, self.paused)
+            self.imgui_stuff.imgui_box(dt, self.paused, app_name=self.app_name)
             self.imgui_stuff.render_box()
 
             end = time.time()
