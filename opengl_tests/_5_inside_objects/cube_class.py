@@ -107,7 +107,6 @@ def make_vbo(data):
     glBindBuffer(GL_ARRAY_BUFFER, 0)
     return vbo
 
-
 def draw(point_data, point_vbo, draw_type):
     n_per_vertice = 3
     n_per_colour = 3
