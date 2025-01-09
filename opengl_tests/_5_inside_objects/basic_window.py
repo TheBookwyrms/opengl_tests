@@ -9,21 +9,21 @@ from imgui.integrations.glfw import GlfwRenderer
 
 import numpy as np
 
-from opengl_tests._5_textures.imgui_stuff import *
-from opengl_tests._5_textures.texture_stuff import *
+from opengl_tests._5_inside_objects.imgui_stuff import *
+from opengl_tests._5_inside_objects.cube_class import *
 
 import time
 
 
 
-class TextureStuff:
+class window_stuff:
     def __init__(self):
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
         self.last_x, self.last_y = 0, 0
-        self.zoom = 15    # 185
+        self.zoom = 1    # 185
         self.pan_sensitivity = 0.001
-        self.angle_sensitivity = 0.01
+        self.angle_sensitivity = 0.1 # 0.1 # 0.01
         
         self.width, self.height = 1924, 1028
         #self.width, self.height = 481, 257
@@ -47,6 +47,8 @@ class TextureStuff:
             -1024,
             1024,
         )
+        glFrustum(-5, 5, -5, 5, 1, 10)
+
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         glTranslatef(self.pan_x, self.pan_y, self.pan_z)
@@ -132,7 +134,7 @@ class TextureStuff:
         self.imgui_stuff.initiate_imgui(window)
 
         
-        glClearColor(0.5, 0.5, 0.5, 1)
+        glClearColor(0.2, 0.2, 0.2, 1)
         glEnable(GL_DEPTH_TEST)
 
         # antialiasing (smoother lines)
@@ -142,6 +144,14 @@ class TextureStuff:
         # opacity
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
+
+            
+        #glEnable(GL_CULL_FACE)
+        #glFrontFace(GL_CW)
+        #glCullFace(GL_FRONT)
+
+        cube = Cube()
+        cube_small = Cube(center=(6, 6, 6), radius=1, v_cols=((0, 0, 0),)*8)
 
         dt = 0
         start = time.time()
@@ -155,6 +165,9 @@ class TextureStuff:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
             self.update_camera()
+
+            draw(cube.data, cube.vbo, GL_TRIANGLE_STRIP)
+            draw(cube_small.data, cube_small.vbo, GL_TRIANGLE_STRIP)
 
 
             self.imgui_stuff.imgui_box(dt, self.paused, app_name=self.app_name)
