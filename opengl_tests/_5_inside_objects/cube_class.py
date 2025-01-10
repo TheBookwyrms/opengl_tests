@@ -94,9 +94,8 @@ class Cube:
         triangles = [[tuple(np.float32(comb)) for comb in t] for t in triangles]
         #print(triangles)
 
-        data = np.array([v[1], v[5], v[0], v[4], v[6], v[5], v[7], v[3], v[6], v[2], v[0], v[3], v[1], v[5],
-                         v[1], v[5], v[0], v[4], v[6], v[5], v[7], v[3], v[6], v[2], v[0], v[3], v[1], v[5],]
-                              ).astype(np.float32)
+        data = np.array([v[1], v[5], v[0], v[4], v[6], v[5], v[7], v[3], v[6], v[2], v[0], v[3], v[1], v[5]]
+                         ).astype(np.float32)
 
         return data
     
