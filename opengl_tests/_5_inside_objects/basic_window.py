@@ -169,9 +169,26 @@ class window_stuff:
         #glEnable(GL_CULL_FACE)
         #glFrontFace(GL_CW)
         #glCullFace(GL_FRONT)
+        small_cubes = []
 
         cube = Cube(center = (-4, -4, -12), radius=10)
-        cube_small = Cube(center=(-4, -4, -15), radius=1, v_cols=((0, 0, 0),)*8)
+        z = -3.5
+        for i in range(9):
+            x, y = np.random.randint(-5, 5), np.random.randint(-5, 5)
+            c = np.random.random()
+            individual_cube = Cube(center=(x, y, z), radius=1, v_cols=((c, c, c),)*8)
+            z -= 2
+            small_cubes.append(individual_cube)
+        #cube_small0 = Cube(center=(-4, -4, -15), radius=1, v_cols=((0, 0, 0),)*8)
+        #small_cubes.append(cube_small0)
+        #cube_small1 = Cube(center=(-1, -1, -17), radius=1, v_cols=((0, 0, 0),)*8)
+        #small_cubes.append(cube_small1)
+        #cube_small2 = Cube(center=(-8, -8, -18), radius=1, v_cols=((0, 0, 0),)*8)
+        #small_cubes.append(cube_small2)
+        #cube_small3 = Cube(center=(-4, -4, -13), radius=1, v_cols=((0, 0, 0),)*8)
+        #small_cubes.append(cube_small3)
+        #cube_small4 = Cube(center=(-4, -4, -11), radius=1, v_cols=((0, 0, 0),)*8)
+        #small_cubes.append(cube_small4)
 
         dt = 0
         start = time.time()
@@ -190,7 +207,9 @@ class window_stuff:
             self.update_camera()
 
             draw(cube.data, cube.vbo, GL_TRIANGLE_STRIP)
-            draw(cube_small.data, cube_small.vbo, GL_TRIANGLE_STRIP)
+            for i in small_cubes:
+                draw(i.data, i.vbo, GL_TRIANGLE_STRIP)
+            #draw(cube_small.data, cube_small.vbo, GL_TRIANGLE_STRIP)
             #draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
 
 
