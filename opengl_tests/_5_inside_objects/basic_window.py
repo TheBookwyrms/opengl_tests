@@ -11,6 +11,8 @@ import numpy as np
 
 from opengl_tests._5_inside_objects.imgui_stuff import *
 from opengl_tests._5_inside_objects.cube_class import *
+#from opengl_tests._5_inside_objects.vbo_stuff import *
+from opengl_tests._5_inside_objects.xyz_axis import *
 
 import time
 
@@ -18,19 +20,21 @@ import time
 
 class window_stuff:
     def __init__(self):
-        self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
-        self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
+        self.render_distance = 1024
+
+        self.angle_x, self.angle_y, self.angle_z = 30, -34, 0 # degrees
+        self.pan_x, self.pan_y, self.pan_z = 0, 0, self.render_distance
         self.last_x, self.last_y = 0, 0
-        self.zoom = 1    # 185
+        self.zoom = 15    # 185
         self.pan_sensitivity = 0.001
-        self.angle_sensitivity = 0.1 # 0.1 # 0.01
+        self.angle_sensitivity = 0.01 # 0.1 # 0.01
         
         self.width, self.height = 1924, 1028
         #self.width, self.height = 481, 257
         #self.width, self.height = 600, 500
         self.aspect_ratio = self.width/self.height
 
-        self.panning, self.angling = False, False
+        self.panning, self.angling, self.z_panning_in, self.z_panning_out = (False,)*4
 
         self.app_name = str(self).split(".")[-1].split(" ")[0]
 
@@ -44,10 +48,9 @@ class window_stuff:
             self.aspect_ratio * self.zoom,
             -self.zoom,
             self.zoom,
-            -1024,
-            1024,
+            -self.render_distance,
+            self.render_distance,
         )
-        glFrustum(-5, 5, -5, 5, 1, 10)
 
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -122,6 +125,21 @@ class window_stuff:
                 pause_time = time.time()
             if (key == glfw.KEY_SPACE) and (self.paused) and (time.time()- pause_time > 0.01):
                 self.paused = False
+            if key == glfw.KEY_W:
+                self.z_panning_in = True
+            if key == glfw.KEY_S:
+                self.z_panning_out = True
+        if action == glfw.RELEASE:
+            if key == glfw.KEY_W:
+                self.z_panning_in = False
+            if key == glfw.KEY_S:
+                self.z_panning_out = False
+
+        if self.z_panning_in:
+            self.pan_z += 0.5
+
+        if self.z_panning_out:
+            self.pan_z -= 0.5
 
     def main(self):
         if not glfw.init():
@@ -145,17 +163,22 @@ class window_stuff:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
 
+        self.pan_z += 8
+
             
         #glEnable(GL_CULL_FACE)
         #glFrontFace(GL_CW)
         #glCullFace(GL_FRONT)
 
-        cube = Cube()
-        cube_small = Cube(center=(6, 6, 6), radius=1, v_cols=((0, 0, 0),)*8)
+        cube = Cube(center = (-4, -4, -12), radius=10)
+        cube_small = Cube(center=(-4, -4, -15), radius=1, v_cols=((0, 0, 0),)*8)
 
         dt = 0
         start = time.time()
         current = time.time()
+
+        xyz_axis = axes()
+
 
         self.done = False
         self.paused = False
@@ -168,10 +191,13 @@ class window_stuff:
 
             draw(cube.data, cube.vbo, GL_TRIANGLE_STRIP)
             draw(cube_small.data, cube_small.vbo, GL_TRIANGLE_STRIP)
+            #draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
+
 
 
             self.imgui_stuff.imgui_box(dt, self.paused, app_name=self.app_name)
             self.imgui_stuff.render_box()
+            #print(self.angle_x, self.angle_y, self.angle_z)
 
             end = time.time()
             if end-current !=0:

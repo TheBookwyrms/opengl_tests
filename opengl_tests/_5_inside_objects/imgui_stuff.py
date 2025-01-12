@@ -35,6 +35,8 @@ class ImguiStuff:
                 imgui.text(f'{1/dt:.4g} fps')
         else:
             imgui.text(f"paused ({1/dt:.4g} fps)")
+        imgui.text(f"W key brings you further into z-dimension")
+        imgui.text(f"S key brings you further out of z-dimension")
 
         imgui.end()
 
