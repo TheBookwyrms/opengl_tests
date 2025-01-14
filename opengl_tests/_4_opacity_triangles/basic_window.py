@@ -11,6 +11,7 @@ import numpy as np
 
 from opengl_tests._4_opacity_triangles.imgui_stuff import *
 from opengl_tests._4_opacity_triangles.opengl_stuff import *
+from opengl_tests._4_opacity_triangles.xyz_axis import *
 
 import time
 
@@ -18,10 +19,12 @@ import time
 
 class OpacityTriangles:
     def __init__(self):
+        self.render_distance = 1024
+
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
-        self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
+        self.pan_x, self.pan_y, self.pan_z = 0, 0, self.render_distance
         self.last_x, self.last_y = 0, 0
-        self.zoom = 15    # 185
+        self.zoom = 45    # 185
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
         
@@ -42,8 +45,8 @@ class OpacityTriangles:
             self.aspect_ratio * self.zoom,
             -self.zoom,
             self.zoom,
-            -1024,
-            1024,
+            -self.render_distance,
+            self.render_distance,
         )
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -141,7 +144,10 @@ class OpacityTriangles:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
 
-        triangles = make_triangles()
+        triangles = make_triangles(min_coord=20, max_coord=40)
+        
+        xyz_axis = axes()
+
 
         dt = 0
         start = time.time()
@@ -158,9 +164,13 @@ class OpacityTriangles:
 
             for t in triangles:
                 draw(t.data, t.vbo, GL_TRIANGLES)
-                t.data = update(t)
+                if not self.paused:
+                    t.data = update(t)
 
+            if not self.paused:
+                self.angle_y += -0.5 * self.angle_sensitivity * self.zoom
 
+            draw(xyz_axis.data, xyz_axis.vbo, GL_LINES)
 
             self.imgui_stuff.imgui_box(dt, self.paused)
             self.imgui_stuff.render_box()

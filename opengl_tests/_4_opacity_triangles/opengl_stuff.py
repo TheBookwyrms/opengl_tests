@@ -7,24 +7,24 @@ import time
 
 
 class Triangle:
-    def __init__(self):
-        coord_1 = np.array([np.random.randint(-10, 10),
-            np.random.randint(-10, 10),
-            np.random.randint(-10, 10),
+    def __init__(self, min_coord, max_coord):
+        coord_1 = np.array([np.random.randint(min_coord, max_coord),
+            np.random.randint(min_coord, max_coord),
+            np.random.randint(min_coord, max_coord),
             np.random.random(),
             np.random.random(),
             np.random.random(),
             np.random.random()])
-        coord_2 = np.array([np.random.randint(-10, 10),
-            np.random.randint(-10, 10),
-            np.random.randint(-10, 10),
+        coord_2 = np.array([np.random.randint(min_coord, max_coord),
+            np.random.randint(min_coord, max_coord),
+            np.random.randint(min_coord, max_coord),
             np.random.random(),
             np.random.random(),
             np.random.random(),
             np.random.random()])
-        coord_3 = np.array([np.random.randint(-10, 10),
-            np.random.randint(-10, 10),
-            np.random.randint(-10, 10),
+        coord_3 = np.array([np.random.randint(min_coord, max_coord),
+            np.random.randint(min_coord, max_coord),
+            np.random.randint(min_coord, max_coord),
             np.random.random(),
             np.random.random(),
             np.random.random(),
@@ -55,10 +55,10 @@ def make_vbo(data):
 
 
 
-def make_triangles():
+def make_triangles(min_coord=-10, max_coord=10):
     triangles = []
     for i in range(np.random.randint(10, 15)):
-        triangle = Triangle()
+        triangle = Triangle(min_coord, max_coord)
         triangles.append(triangle)
 
     return triangles
