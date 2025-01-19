@@ -7,24 +7,27 @@ import time
 
 
 class Triangle:
-    def __init__(self, min_coord, max_coord):
-        coord_1 = np.array([np.random.randint(min_coord, max_coord),
-            np.random.randint(min_coord, max_coord),
-            np.random.randint(min_coord, max_coord),
+    def __init__(self, min_x, min_y, min_z, max_x, max_y, max_z):
+        coord_1 = np.array([
+            np.random.randint(min_x, max_x),
+            np.random.randint(min_y, max_y),
+            np.random.randint(min_z, max_z),
             np.random.random(),
             np.random.random(),
             np.random.random(),
             np.random.random()])
-        coord_2 = np.array([np.random.randint(min_coord, max_coord),
-            np.random.randint(min_coord, max_coord),
-            np.random.randint(min_coord, max_coord),
+        coord_2 = np.array([
+            np.random.randint(min_x, max_x),
+            np.random.randint(min_y, max_y),
+            np.random.randint(min_z, max_z),
             np.random.random(),
             np.random.random(),
             np.random.random(),
             np.random.random()])
-        coord_3 = np.array([np.random.randint(min_coord, max_coord),
-            np.random.randint(min_coord, max_coord),
-            np.random.randint(min_coord, max_coord),
+        coord_3 = np.array([
+            np.random.randint(min_x, max_x),
+            np.random.randint(min_y, max_y),
+            np.random.randint(min_z, max_z),
             np.random.random(),
             np.random.random(),
             np.random.random(),
@@ -55,10 +58,15 @@ def make_vbo(data):
 
 
 
-def make_triangles(min_coord=-10, max_coord=10):
+def make_triangles(min_x=-10,
+                   min_y=-10,
+                   min_z=-10,
+                   max_x= 10,
+                   max_y= 10,
+                   max_z= 10,):
     triangles = []
     for i in range(np.random.randint(10, 15)):
-        triangle = Triangle(min_coord, max_coord)
+        triangle = Triangle(min_x, min_y, min_z, max_x, max_y, max_z)
         triangles.append(triangle)
 
     return triangles

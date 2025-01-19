@@ -9,15 +9,16 @@ from imgui.integrations.glfw import GlfwRenderer
 
 import numpy as np
 
-from opengl_tests._4_opacity_triangles.imgui_stuff import *
-from opengl_tests._4_opacity_triangles.opengl_stuff import *
-from opengl_tests._4_opacity_triangles.xyz_axis import *
+from opengl_tests._6_joule_collisions.imgui_stuff import *
+from opengl_tests._6_joule_collisions.vbo_stuff import *
+from opengl_tests._6_joule_collisions.ground_function_class import *
+from opengl_tests._6_joule_collisions.vector_lines import *
 
 import time
 
 
 
-class OpacityTriangles:
+class CollisionFunctions:
     def __init__(self):
         self.render_distance = 1024
         
@@ -26,10 +27,18 @@ class OpacityTriangles:
         #self.width, self.height = 600, 500
         self.aspect_ratio = self.width/self.height
 
-        self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
-        self.pan_x, self.pan_y, self.pan_z = 0, -39, self.render_distance # -39 # self.height/26
+        #self.angle_x, self.angle_y, self.angle_z = -90, 0, 45 # degrees
+        self.angle_x, self.angle_y, self.angle_z = 109, -133, 0 # degrees
+        #self.pan_x, self.pan_y, self.pan_z = 109, -133, 0 # -39 # self.height/26
+        self.pan_x, self.pan_y, self.pan_z = 0.0488, -1.72, 0 # -39 # self.height/26
+
+        #self.angle_x, self.angle_y, self.angle_z = 26.4, -211, 0 # degrees
+        #self.pan_x, self.pan_y, self.pan_z = -1.35, 3.87, 0 # -39 # self.height/26
+
         self.last_x, self.last_y = 0, 0
-        self.zoom = 45    # 185
+        self.zoom = 5    # 185
+        #self.zoom = 1    # 185
+        #self.zoom=0.1
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
 
@@ -76,8 +85,8 @@ class OpacityTriangles:
         glfw.set_scroll_callback(window, self.scroll_callbacks)
 
     def scroll_callbacks(self, window, xoffset, yoffset):
-        if self.zoom-yoffset != 0:
-            self.zoom -= yoffset
+        if (self.zoom-0.24*yoffset != 0) and not ((self.zoom-0.24*yoffset > -0.1) & (self.zoom-0.24*yoffset < 0.1)):
+            self.zoom -= 0.24*yoffset
     
     def cursor_pos_callbacks(self, window, xpos, ypos):
         if self.panning:
@@ -137,35 +146,24 @@ class OpacityTriangles:
         glEnable(GL_DEPTH_TEST)
 
         # antialiasing (smoother lines)
-        glEnable(GL_MULTISAMPLE)
-        glEnable(GL_POINT_SMOOTH)
+        #glEnable(GL_MULTISAMPLE)
+        #glEnable(GL_POINT_SMOOTH)
 
         # opacity
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
 
-        groups = []
+        f_of_x_y = lambda x, y: np.cos(x) + np.cos(y)
+        df_dx = lambda x: -np.sin(x)
+        df_dy = lambda y: -np.sin(y)
+        func = GroundFunction(f_of_x_y)
+        x, y = -1, -0.43
+        #x, y = -2.5, -2.5
+        normal = Normal(x=x, y=y, f_of_x_y=f_of_x_y, df_dx=df_dx(x), df_dy=df_dy(y))
 
-        triangles = make_triangles(
-                   min_x=20,
-                   min_y=20,
-                   min_z=20,
-                   max_x=40,
-                   max_y=40,
-                   max_z=40,)
-        groups.append(triangles)
+        gravity = Gravity(x=x, y=y, f_of_x_y=f_of_x_y(x, y))
 
-        t2 = make_triangles(
-                   min_x=10,
-                   min_y=60,
-                   min_z=45,
-                   max_x=55,
-                   max_y=90,
-                   max_z=105,)
-        groups.append(t2)
-
-        
-        xyz_axis = axes()
+        parallel = parallel_component_of_gravity(x=x, y=y, f_of_x_y=f_of_x_y, df_dx=df_dx(x), df_dy=df_dy(y), df=f_of_x_y(df_dx(x), df_dy(y)))
 
 
         dt = 0
@@ -181,18 +179,15 @@ class OpacityTriangles:
 
             self.update_camera()
 
-            for group in groups:
-                for triangle in group:
-                    draw(triangle.data, triangle.vbo, GL_TRIANGLES)
-                    if not self.paused:
-                        triangle.data = update(triangle)
 
-            if not self.paused:
-                self.angle_y += -0.3 * self.angle_sensitivity * self.zoom
+            draw(func.data, func.vbo, GL_POINTS)
+            #draw(func.data, func.vbo, GL_TRIANGLE_STRIP)
+            draw(normal.data, normal.vbo, GL_LINES)
+            draw(gravity.data, gravity.vbo, GL_LINES)
+            draw(parallel.data, parallel.vbo, GL_LINES)
 
-            draw(xyz_axis.data, xyz_axis.vbo, GL_LINES)
 
-            self.imgui_stuff.imgui_box(dt, self.paused)
+            self.imgui_stuff.imgui_box(dt, self.paused, self)
             self.imgui_stuff.render_box()
 
             end = time.time()
