@@ -14,6 +14,8 @@ from opengl_tests._6_joule_collisions.vbo_stuff import *
 from opengl_tests._6_joule_collisions.ground_function_class import *
 from opengl_tests._6_joule_collisions.vector_lines import *
 
+
+
 import time
 
 
@@ -30,6 +32,9 @@ class CollisionFunctions:
         #self.angle_x, self.angle_y, self.angle_z = -90, 0, 45 # degrees
         self.angle_x, self.angle_y, self.angle_z = 109, -133, 0 # degrees
         #self.pan_x, self.pan_y, self.pan_z = 109, -133, 0 # -39 # self.height/26
+        self.pan_x, self.pan_y, self.pan_z = 0.0488, -1.72, 0 # -39 # self.height/26
+
+        self.angle_x, self.angle_y, self.angle_z = 109+0, -177+0, 0 +90# degrees
         self.pan_x, self.pan_y, self.pan_z = 0.0488, -1.72, 0 # -39 # self.height/26
 
         #self.angle_x, self.angle_y, self.angle_z = 26.4, -211, 0 # degrees
@@ -157,7 +162,8 @@ class CollisionFunctions:
         df_dx = lambda x: -np.sin(x)
         df_dy = lambda y: -np.sin(y)
         func = GroundFunction(f_of_x_y)
-        x, y = -1, -0.43
+        x, y = 0, 0.1
+        #x, y = -1, -0.43
         #x, y = -2.5, -2.5
         normal = Normal(x=x, y=y, f_of_x_y=f_of_x_y, df_dx=df_dx(x), df_dy=df_dy(y))
 

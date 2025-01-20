@@ -105,7 +105,7 @@ class parallel_component_of_gravity:
             [x-df_dx, y-df_dy, f_at_x_y-1, 0.5, 0.2, 0.8, 1]
         ])
 
-        parallel_line = (line2)
+        parallel_line = (line1)
 
         ##q = b - ((b*n)/(n*n))
         #q = gravity - (np.dot(gravity, normal_xyz)/np.dot(normal_xyz, normal_xyz))
