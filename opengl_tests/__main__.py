@@ -9,7 +9,7 @@ if __name__ == "__main__":
     #app = CollisionFunctions() # _6_
     #app = window_stuff() # _5_
     #app = OpacityTriangles() # _4_
-    #app = BinarySystem() # _3_
+    app = BinarySystem() # _3_
     #app = rotation_circulation_of_sphere_test() # _2_
-    app =  MyForceAwakens() # _1_
+    #app =  MyForceAwakens() # _1_
     app.main()
