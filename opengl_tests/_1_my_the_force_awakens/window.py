@@ -11,10 +11,14 @@ from opengl_tests._1_my_the_force_awakens.black_hole_class import *
 from opengl_tests._1_my_the_force_awakens.background_stars_class import *
 from opengl_tests._1_my_the_force_awakens.vbo_and_render import *
 from opengl_tests._1_my_the_force_awakens.xyz_axis import *
+from opengl_tests._1_my_the_force_awakens.imgui_stuff import *
 
 import time
 
 from itertools import product
+
+import imgui
+from imgui.integrations.glfw import GlfwRenderer
 
 class MyForceAwakens:
     def __init__(self):
@@ -92,6 +96,10 @@ class MyForceAwakens:
         self.last_x, self.last_y = xpos, ypos
     
     def mouse_callbacks(self, window, button, action, mods):
+        # stops screen panning/rotating if imgui box is moving
+        if self.imgui_stuff.in_use():
+            return
+        
         if action == glfw.PRESS:
             if button == glfw.MOUSE_BUTTON_LEFT:
                 self.panning = True
@@ -169,7 +177,13 @@ class MyForceAwakens:
         if not glfw.init():
             return
         
+
+        self.imgui_stuff = ImguiStuff()
+
         window = self.build_window()
+        
+        self.imgui_stuff.initiate_imgui(window)
+
 
         glClearColor(0.1, 0.1, 0.1, 1)
         glEnable(GL_DEPTH_TEST)
@@ -208,126 +222,128 @@ class MyForceAwakens:
 
             self.update_camera()
 
+            '''tests from _3_binary_system'''
+            def tests_to_ignore():
+                #            def ignore():
+                #                import numpy as np
+                #                from itertools import combinations
+                #                from itertools import product
+                #
+                #                a = np.array([0, 1, 2, 3, 4, 5])
+                #
+                #                G=1
+                #                g = (lambda mass, pos_1, pos_2 :
+                #                        G * mass * (pos_1-pos_2) / np.linalg.norm(pos_1-pos_2)**3
+                #                        if np.linalg.norm(pos_1-pos_2) != 0 else 0)
+                #
+                #                b = np.empty((len(a), len(a)))
+                #
+                #                c = product(a, a)
+                #                c = [e for e in c]
+                #
+                #                for e in c:
+                #                    b[e[0], e[1]] = float(f'{g(1, e[0], e[1]):.3f}')
+                #                    
+                #                print(b)
+                #                d = np.add.reduce(b)
+                #                print(d)
+                #
+                #
+                #            for i, planet in enumerate(self.bodies):
+                #                for index, other in enumerate(self.bodies):
+                #                    if planet == other:
+                #                        continue
+                #                    dist_mag = np.linalg.norm(other.curr_s - planet.curr_s)
+                #                    if dist_mag < 0.5:
+                #                        planet.m += other.m
+                #                        #planet.curr_v += other.curr_v
+                #                        self.bodies.pop(index)
+                #                    if (planet == self.bodies[0]) and (dist_mag > 1024):
+                #                        self.bodies.pop(index)
+                #
+                #            Fg = (lambda mass_1, mass_2, pos_1, pos_2 :
+                #                    mass_1 * mass_2 * (pos_1-pos_2) / np.linalg.norm(pos_1-pos_2)**3
+                #                    if np.linalg.norm(pos_1-pos_2) != 0 else 0)
+                #
+                #            num_bodies = len(self.bodies)
+                #            list_num_bodies = range(num_bodies)
+                #            interactions = np.empty((num_bodies, num_bodies), dtype=np.ndarray)
+                #            box_combinations = product(list_num_bodies, list_num_bodies)
+                #            box_combinations = [b for b in box_combinations]
+                #
+                #            for combination in box_combinations:
+                #                interactions[combination[0], combination[1]] = (
+                #                    Fg(self.bodies[combination[0]].m,
+                #                      self.bodies[combination[1]].m,
+                #                      self.bodies[combination[0]].curr_s,
+                #                      self.bodies[combination[1]].curr_s,)
+                #                )
+                #
+                #            Fg_per_planet = np.add.reduce(interactions)
+                #
+                #            for index, planet in enumerate(self.bodies):
+                #                planet.next_a = G*Fg_per_planet[index]/planet.m
+                #                planet.next_v = planet.curr_a * dt + planet.curr_v
+                #                planet.next_s = planet.next_v * dt + planet.curr_s
+                #
+                #            
+                #            def ignore_2():
+                #                pass
+                #                g = np.array([0, 0, 0], dtype=np.float32)
+                #                for planet in self.bodies:
+                #                    if planet != self.bodies[0]:
+                #                        pass
+                #                        pos = planet.curr_s
+                #                        mag_pos = np.linalg.norm(pos)
+                #
+                #                        g_vec = (planet.m * pos) / mag_pos**3
+                #
+                #                        g += g_vec
+                #                    #else:
+                #                    #    g -= (planet.m,)*3
+                #                g *= G
+                #
+                #                for planet in self.bodies:
+                #                    if planet != self.bodies[0]:
+                #                        pos = planet.curr_s
+                #                        mag_pos = np.linalg.norm(pos)
+                #
+                #                        g_vec = (planet.m * pos) / mag_pos**3
+                #
+                #                        planet.next_a = g - (G*g_vec)
+                #                        planet.next_v = planet.curr_a * dt + planet.curr_v
+                #                        planet.next_s = planet.next_v * dt + planet.curr_s
+                pass
 
-            def ignore():
-                import numpy as np
-                from itertools import combinations
-                from itertools import product
 
-                a = np.array([0, 1, 2, 3, 4, 5])
-
-                G=1
-                g = (lambda mass, pos_1, pos_2 :
-                        G * mass * (pos_1-pos_2) / np.linalg.norm(pos_1-pos_2)**3
-                        if np.linalg.norm(pos_1-pos_2) != 0 else 0)
-
-                b = np.empty((len(a), len(a)))
-
-                c = product(a, a)
-                c = [e for e in c]
-
-                for e in c:
-                    b[e[0], e[1]] = float(f'{g(1, e[0], e[1]):.3f}')
-                    
-                print(b)
-                d = np.add.reduce(b)
-                print(d)
-
-
+            # force on each planet due to gravity calculations
             for i, planet in enumerate(self.bodies):
+                next_a = np.array([0, 0, 0], dtype=np.float64)
                 for index, other in enumerate(self.bodies):
                     if planet == other:
                         continue
-                    dist_mag = np.linalg.norm(other.curr_s - planet.curr_s)
-                    if dist_mag < 0.5:
+                    dist_vec = other.curr_s - planet.curr_s
+                    dist_vec_mag = np.linalg.norm(dist_vec)
+                    unit_dist_vec = dist_vec/dist_vec_mag
+                    if dist_vec_mag < 0.5:
                         planet.m += other.m
                         #planet.curr_v += other.curr_v
                         self.bodies.pop(index)
-                    if (planet == self.bodies[0]) and (dist_mag > 1024):
+                    elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
                         self.bodies.pop(index)
+                    if planet.m != 0:
+                        pass
+                        #g = G * other.m / (dist_vec_mag**2)
+                        #a = dist_vec / dist_vec_mag * g
 
-            Fg = (lambda mass_1, mass_2, pos_1, pos_2 :
-                    mass_1 * mass_2 * (pos_1-pos_2) / np.linalg.norm(pos_1-pos_2)**3
-                    if np.linalg.norm(pos_1-pos_2) != 0 else 0)
+                        #a = dist_vec * G * other.m / dist_vec_mag**3
+                        a = G * other.m / dist_vec_mag**2 * unit_dist_vec
+                        next_a += a
 
-            num_bodies = len(self.bodies)
-            list_num_bodies = range(num_bodies)
-            interactions = np.empty((num_bodies, num_bodies), dtype=np.ndarray)
-            box_combinations = product(list_num_bodies, list_num_bodies)
-            box_combinations = [b for b in box_combinations]
-
-            for combination in box_combinations:
-                interactions[combination[0], combination[1]] = (
-                    Fg(self.bodies[combination[0]].m,
-                      self.bodies[combination[1]].m,
-                      self.bodies[combination[0]].curr_s,
-                      self.bodies[combination[1]].curr_s,)
-                )
-
-            Fg_per_planet = np.add.reduce(interactions)
-
-            for index, planet in enumerate(self.bodies):
-                planet.next_a = G*Fg_per_planet[index]/planet.m
+#                # Euler integration
+                planet.next_a = next_a
                 planet.next_v = planet.curr_a * dt + planet.curr_v
                 planet.next_s = planet.next_v * dt + planet.curr_s
-
-            
-            def ignore_2():
-                pass
-                g = np.array([0, 0, 0], dtype=np.float32)
-                for planet in self.bodies:
-                    if planet != self.bodies[0]:
-                        pass
-                        pos = planet.curr_s
-                        mag_pos = np.linalg.norm(pos)
-
-                        g_vec = (planet.m * pos) / mag_pos**3
-
-                        g += g_vec
-                    #else:
-                    #    g -= (planet.m,)*3
-                g *= G
-
-                for planet in self.bodies:
-                    if planet != self.bodies[0]:
-                        pos = planet.curr_s
-                        mag_pos = np.linalg.norm(pos)
-
-                        g_vec = (planet.m * pos) / mag_pos**3
-
-                        planet.next_a = g - (G*g_vec)
-                        planet.next_v = planet.curr_a * dt + planet.curr_v
-                        planet.next_s = planet.next_v * dt + planet.curr_s
-
-
-#            # force on each planet due to gravity calculations
-#            for i, planet in enumerate(self.bodies):
-#                next_a = np.array([0, 0, 0], dtype=np.float64)
-#                for index, other in enumerate(self.bodies):
-#                    if planet == other:
-#                        continue
-#                    dist_vec = other.curr_s - planet.curr_s
-#                    dist_vec_mag = np.linalg.norm(dist_vec)
-#                    unit_dist_vec = dist_vec/dist_vec_mag
-#                    if dist_vec_mag < 0.5:
-#                        planet.m += other.m
-#                        #planet.curr_v += other.curr_v
-#                        self.bodies.pop(index)
-#                    elif (planet == self.bodies[0]) and (dist_vec_mag > 1024):
-#                        self.bodies.pop(index)
-#                    if planet.m != 0:
-#                        pass
-#                        #g = G * other.m / (dist_vec_mag**2)
-#                        #a = dist_vec / dist_vec_mag * g
-#
-#                        #a = dist_vec * G * other.m / dist_vec_mag**3
-#                        a = G * other.m / dist_vec_mag**2 * unit_dist_vec
-#                        next_a += a
-#
-##                # Euler integration
-#                planet.next_a = next_a
-#                planet.next_v = planet.curr_a * dt + planet.curr_v
-#                planet.next_s = planet.next_v * dt + planet.curr_s
           
             for p in self.bodies:
                 draw(p.vertices, p.vbo, GL_POINTS) # draws sphere
@@ -357,6 +373,11 @@ class MyForceAwakens:
 
 
                     p.update_point_and_trail_vbo()
+
+            
+            self.imgui_stuff.imgui_box(dt, self.bodies, self.paused)
+            self.imgui_stuff.render_box()
+
 
             # draw(xyz_axis.data, xyz_axis.vbo, GL_LINES) # draws xyz axes
             draw(bkg.vertices, bkg.vbo, GL_POINTS) # draws background stars
