@@ -1,5 +1,4 @@
-from opengl_tests._3_solar_system.object_classes.sphere_class import *
-
+from opengl_tests._3_binary_system.object_classes.sphere_class import *
 
 class Planet(Sphere):
     def __init__(self,
@@ -21,7 +20,7 @@ class Planet(Sphere):
         super().__init__(radius, x_i, y_i, z_i, x_c, y_c, z_c,
                          center, vec_maj, vec_min, e_c,
                          rot_axis_vec, r_axis_c, deg_per_rot)
-
+        
 
 class BlackHole(Sphere):
     def __init__(self,

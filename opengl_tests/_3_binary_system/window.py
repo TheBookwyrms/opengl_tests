@@ -9,22 +9,25 @@ from imgui.integrations.glfw import GlfwRenderer
 
 import numpy as np
 
-from opengl_tests._3_solar_system.object_classes.ellipse_class import *
-from opengl_tests._3_solar_system.object_classes.line_of_rotation_class import *
-from opengl_tests._3_solar_system.object_classes.sphere_class import *
-from opengl_tests._3_solar_system.object_classes.xyz_axis import *
-from opengl_tests._3_solar_system.object_classes.background_stars_class import *
+from opengl_tests._3_binary_system.object_classes.ellipse_class import *
+from opengl_tests._3_binary_system.object_classes.line_of_rotation_class import *
+from opengl_tests._3_binary_system.object_classes.sphere_class import *
+from opengl_tests._3_binary_system.object_classes.xyz_axis import *
+from opengl_tests._3_binary_system.object_classes.background_stars_class import *
 
-from opengl_tests._3_solar_system.celestial_body_classes import *
+from opengl_tests._3_binary_system.celestial_body_classes import *
 
-from opengl_tests._3_solar_system.vbo_stuff import *
+from opengl_tests._3_binary_system.vbo_stuff import *
 
-from  opengl_tests._3_solar_system.imgui_stuff import *
+from  opengl_tests._3_binary_system.imgui_stuff import *
 
 import time
 
+from itertools import product
 
-class SolarSystem:
+
+
+class BinarySystem:
     def __init__(self):
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0 # degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0
@@ -135,6 +138,7 @@ class SolarSystem:
                 bh_or_s = self.bodies[b_s]
                 self.num_planets = np.random.randint(3, 7)
                 self.num_planets = 14
+                #self.num_planets=1
                 pos_range = list(range(-39, 41, 7))
                 for i in range(self.num_planets):
                     r = np.random.randint(2, 3)-np.random.random()
@@ -236,7 +240,95 @@ class SolarSystem:
           
             for p in self.bodies:
                 draw(p.data, p.vbo, GL_POINTS) # draws sphere
-                
+
+            a = time.time()
+
+#            '''methods 1, 2, 3, 4:'''
+#            for i, planet in enumerate(self.bodies):
+#                for index, other in enumerate(self.bodies):
+#                    if planet == other:
+#                        continue
+#                    dist_mag = np.linalg.norm(other.curr_s - planet.curr_s)
+#                    if dist_mag < 0.5:
+#                        planet.m += other.m
+#                        #planet.curr_v += other.curr_v
+#                        self.bodies.pop(index)
+#                    if (planet == self.bodies[0]) and (dist_mag > 1024):
+#                        self.bodies.pop(index)
+#
+#
+#            Fg = (lambda mass_1, mass_2, pos_1, pos_2 :
+#                    mass_1 * mass_2 * (pos_1-pos_2) / np.linalg.norm(pos_1-pos_2)**3
+#                    if np.linalg.norm(pos_1-pos_2) != 0 else np.array([0, 0, 0]))
+#
+#
+#            num_bodies = len(self.bodies)
+#            list_num_bodies = range(num_bodies)
+#
+#            b = time.time()
+#            
+#
+#            #interactions = np.empty((num_bodies, num_bodies), dtype=np.ndarray)
+#            #box_combinations = product(list_num_bodies, list_num_bodies)
+#            #box_combinations = np.array([np.array([b[0], b[1]]) for b in box_combinations])
+##
+#            #'''method 1'''
+#            ##for combination in box_combinations:
+#            ##    interactions[combination[0], combination[1]] = (
+#            ##        Fg(self.bodies[combination[0]].m,
+#            ##           self.bodies[combination[1]].m,
+#            ##           self.bodies[combination[0]].curr_s,
+#            ##           self.bodies[combination[1]].curr_s,)
+#            ##    )
+##
+#            #'''method 2'''
+#            #for (p1_i, p2_i), j in np.ndenumerate(interactions):
+#            #    interactions[p1_i, p2_i] = Fg(self.bodies[p1_i].m,
+#            #                                  self.bodies[p2_i].m,
+#            #                                  self.bodies[p1_i].curr_s,
+#            #                                  self.bodies[p2_i].curr_s,)
+#            #    
+#            #'''method 3'''
+#            #for i in np.ndindex(num_bodies, num_bodies):
+#            #    interactions[i[0], i[1]] = (
+#            #        Fg(self.bodies[i[0]].m,
+#            #           self.bodies[i[1]].m,
+#            #           self.bodies[i[0]].curr_s,
+#            #           self.bodies[i[1]].curr_s,)
+#            #    )
+#            #
+#            #Fg_per_planet = np.add.reduce(interactions)
+#
+#
+#
+#            '''method 4''' # mostly works
+#            mass = np.vectorize(lambda indice : self.bodies[indice].m)
+#            curr_s_k = np.vectorize(lambda xyz_i, indice : self.bodies[indice].curr_s[xyz_i])
+#
+#            x, y = np.meshgrid(list_num_bodies, list_num_bodies)
+#            mass_1, s_1 = mass(x), np.array([curr_s_k(0, x), curr_s_k(1, x), curr_s_k(2, x)])
+#            mass_2, s_2 = mass(y), np.array([curr_s_k(0, y), curr_s_k(1, y), curr_s_k(2, y)])
+#
+#            Fg_all = Fg(mass_1, mass_2, s_1, s_2)
+#            Fg_per_planet = np.add.reduce(Fg_all, axis=2)
+#
+#            e = time.time()
+#
+#
+#            #print(100*np.array([b-a, e-b]))
+#
+#            #G = -100000
+#            G =   0.106743*1
+#            for index, planet in enumerate(self.bodies):
+#                planet.next_a = G*Fg_per_planet[:, index]/planet.m #'''method 4'''
+#                #planet.next_a = G*Fg_per_planet[index]/planet.m #'''methods 1, 2, 3'''
+#                #if planet == self.bodies[3]:
+#                #    print(planet.next_a, "new")
+#                planet.next_v = planet.curr_a * dt + planet.curr_v
+#                planet.next_s = planet.next_v * dt + planet.curr_s
+               
+
+
             # force on each planet due to gravity calculations
             for i, planet in enumerate(self.bodies):
                 for index, other in enumerate(self.bodies):
@@ -261,14 +353,17 @@ class SolarSystem:
                         self.bodies.pop(i)
 
 
+                    G=0.106743
                     if planet.m != 0:
                         Fg = G * planet.m * other.m / (dist_vec_mag**2)
                         Fa = dist_vec / dist_vec_mag * Fg
                         planet.next_a += Fa
 
-
                 # Euler integration
                 planet.next_a /= planet.m
+                #if planet == self.bodies[3]:
+                #    print(planet.next_a, "original")
+                #    print()
                 planet.next_v = planet.curr_a * dt + planet.curr_v
                 planet.next_s = planet.next_v * dt + planet.curr_s
           

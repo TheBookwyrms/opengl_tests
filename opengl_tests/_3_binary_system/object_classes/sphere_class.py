@@ -1,9 +1,9 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-from opengl_tests._3_solar_system.object_classes.ellipse_class import *
-from opengl_tests._3_solar_system.object_classes.line_of_rotation_class import *
-from opengl_tests._3_solar_system.vbo_stuff import *
+from opengl_tests._3_binary_system.object_classes.ellipse_class import *
+from opengl_tests._3_binary_system.object_classes.line_of_rotation_class import *
+from opengl_tests._3_binary_system.vbo_stuff import *
 
 import numpy as np
 

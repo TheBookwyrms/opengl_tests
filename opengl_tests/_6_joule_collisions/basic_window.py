@@ -16,6 +16,8 @@ from opengl_tests._6_joule_collisions.vector_lines import *
 
 
 
+
+
 import time
 
 
@@ -162,7 +164,8 @@ class CollisionFunctions:
         df_dx = lambda x: -np.sin(x)
         df_dy = lambda y: -np.sin(y)
         func = GroundFunction(f_of_x_y)
-        x, y = 0, 0.1
+        x, y = 0, 1
+        #x, y = 0, 0.1
         #x, y = -1, -0.43
         #x, y = -2.5, -2.5
         normal = Normal(x=x, y=y, f_of_x_y=f_of_x_y, df_dx=df_dx(x), df_dy=df_dy(y))
