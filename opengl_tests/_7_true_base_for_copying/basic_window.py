@@ -137,7 +137,7 @@ class BaseWindow:
 
         self.imgui_stuff = ImguiStuff()
 
-        appname = str(type(self)).split(".")[3][:-2]
+        appname = type(self).__name__
         window = self.build_window(appname)
         
         self.imgui_stuff.initiate_imgui(window, appname)
