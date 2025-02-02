@@ -16,14 +16,15 @@ class ImguiStuff:
             return True
 
 
-    def initiate_imgui(self, window):
+    def initiate_imgui(self, window, appname):
+        self.appname = appname
         imgui.create_context()
         imgui.get_io().display_size = 100,100
         self.imgui_use = GlfwRenderer(window, attach_callbacks=False)
 
     def imgui_box(self, dt, paused, window):
         imgui.new_frame()
-        imgui.begin("collision functions")
+        imgui.begin(self.appname)
 
         # dt = 1F / xs
         # 1/x = y/1
@@ -38,7 +39,7 @@ class ImguiStuff:
 
         imgui.text(f'{window.angle_x:.3g}, {window.angle_y:.3g}, {window.angle_z:.3g} : angles x, y, z')
         imgui.text(f'{window.pan_x:.3g}, {window.pan_y:.3g}, {window.pan_z:.3g} : pan x, y, z')
-        imgui.text(f'{window.zoom} : zoom level')
+        imgui.text(f'{window.zoom:.3g} : zoom level')
 
         imgui.end()
 

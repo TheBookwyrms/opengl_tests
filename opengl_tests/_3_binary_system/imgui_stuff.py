@@ -23,7 +23,7 @@ class ImguiStuff:
 
     def imgui_box(self, dt, bodies, paused):
         imgui.new_frame()
-        imgui.begin("Solar System")
+        imgui.begin("Binary System")
 
         # dt = 1F / xs
         # 1/x = y/1
