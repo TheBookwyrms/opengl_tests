@@ -9,15 +9,15 @@ from imgui.integrations.glfw import GlfwRenderer
 
 import numpy as np
 
-from opengl_tests._7_true_base_for_copying.imgui_stuff import *
-from opengl_tests._7_true_base_for_copying.vbo_stuff import *
-from opengl_tests._7_true_base_for_copying.opengl_stuff import *
+from opengl_tests._8_points.imgui_stuff import *
+from opengl_tests._8_points.vbo_stuff import *
+from opengl_tests._8_points.opengl_stuff import *
 
 import time
 
 
 
-class BaseWindow:
+class PointsStuff:
     def __init__(self):
         self.render_distance = 1024
         
@@ -26,21 +26,13 @@ class BaseWindow:
         #self.width, self.height = 600, 500
         self.aspect_ratio = self.width/self.height
 
-        #self.angle_x, self.angle_y, self.angle_z = -90, 0, 45 # degrees
-        self.angle_x, self.angle_y, self.angle_z = 109, -133, 0 # degrees
-        #self.pan_x, self.pan_y, self.pan_z = 109, -133, 0 # -39 # self.height/26
-        self.pan_x, self.pan_y, self.pan_z = 0.0488, -1.72, 0 # -39 # self.height/26
 
         self.angle_x, self.angle_y, self.angle_z = 109+0, -177+0, 0 +90# degrees
-        self.pan_x, self.pan_y, self.pan_z = 0.0488, -1.72, 0 # -39 # self.height/26
+        self.pan_x, self.pan_y, self.pan_z = 0, 0, 0 # -39 # self.height/26
 
-        #self.angle_x, self.angle_y, self.angle_z = 26.4, -211, 0 # degrees
-        #self.pan_x, self.pan_y, self.pan_z = -1.35, 3.87, 0 # -39 # self.height/26
 
         self.last_x, self.last_y = 0, 0
-        self.zoom = 5    # 185
-        #self.zoom = 1    # 185
-        #self.zoom=0.1
+        self.zoom = 5
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
 
@@ -156,9 +148,9 @@ class BaseWindow:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
 
+
         opengl_stuff_for_window = OpenGLStuff()
         opengl_stuff_for_window.setup()
-
 
         dt = 0
         start = time.time()
