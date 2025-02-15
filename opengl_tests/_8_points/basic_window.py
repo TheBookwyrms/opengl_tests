@@ -152,6 +152,8 @@ class PointsStuff:
         opengl_stuff_for_window = OpenGLStuff()
         opengl_stuff_for_window.setup()
 
+        dt_num = 0
+
         dt = 0
         start = time.time()
         current = time.time()

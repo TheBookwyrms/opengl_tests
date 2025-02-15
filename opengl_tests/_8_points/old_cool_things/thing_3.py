@@ -6,55 +6,30 @@ from opengl_tests._8_points.vbo_stuff import *
 import numpy as np
 
 
-class OpenGLStuff:
+class Thing_3:
     def __init__(self):
         pass
 
     def setup(self):
+        
+        n = 5000
 
+        points_data = np.zeros((n, 7))
 
-        n = 500
+        # x, y, z data
+        multiplier = 5
+        m1 = multiplier * (2 * np.random.random((n, 3)) - 1) /2
+        
+        m2 = np.sin(m1)
+        #m2 = 1/np.sin(m1)
+        #m2 = np.sinh(m1)
+        #m2 = 1/np.sinh(np.tan(m1))
 
-        points_data = np.zeros((n**2, 7))
-
-        x1 = np.linspace(-5, 5, n)
-        y1 = np.linspace(-5, 5, n)
-
-        x2, y2 = np.meshgrid(x1, y1)
-        x2 = x2.reshape(-1)
-        y2 = y2.reshape(-1)
-
-        pm = np.array([x2, y2, np.empty(x2.shape)]).T
-
-        points_data[:, :3] = pm
-
-        self.thetas = np.linspace(0, 2*np.pi, 360)
-
-        f = lambda x, y, a : np.sin(np.cos(x)+a) - np.sin(np.cos(y)-a) # sin/cos wave surface up and down
-        g = lambda x, y, a : np.cos(a * np.sqrt(x**2 + y**2)) # concentric circles king of? (but awesome)
-        h = lambda x, y, a : np.sqrt(a-x**2-y**2) # dome
-
-        # method 1
-        z_s = []
-        for t in self.thetas:
-            z = f(x2, y2, t)
-            z_s.append(z)
-
-        # method 2
-        th = self.thetas
-        x3, y3, z3 = np.meshgrid(x1, y1, th)
-        x3, y3, z3 = x3.reshape(-1), y3.reshape(-1), z3.reshape(-1)
-        kz = f(x3, y3, z3).reshape(-1, 360).T
-
-
-        #self.all_z = kz # method 2
-        self.all_z = z_s # method 1
-        self.z_num = 0
-
+        points_data[:, :3] = m2
         
         # r, g, b data
         k = (-1)**np.abs(np.int32(10*points_data[:, :3]))
-        points_data[:, 3:6] = k * points_data[:, :3] * 1/5
+        points_data[:, 3:6] = k * points_data[:, :3] * 4/5
         
         # opacity data
         points_data[:, 6] = 1
@@ -87,17 +62,8 @@ class OpenGLStuff:
 
 
     def update_points(self):
-        try:
-            self.points_data[:, 2] = self.all_z[self.z_num]
-            self.z_num += 1
-        except:
-            self.z_num = 0
-            self.points_data[:, 2] = self.all_z[self.z_num]
-            self.z_num += 1
-
-
-        self.rotate_on_axis()
-        #self.rotate_colours()
+        #self.rotate_on_axis()
+        self.rotate_colours()
         update_vbo(self.points_data, self.points_vbo)
 
 
