@@ -3,6 +3,8 @@ from OpenGL.GLU import *
 
 import numpy as np
 
+from opengl_tests._1_my_the_force_awakens.vbo_and_render import *
+
 class BlackHole:
     def __init__(self, radius=1, x_i=0, y_i=0, z_i=0, x_c=[0,0,0], y_c=[0,0,0], z_c=[0,0,0]):
         self.build_sphere_coords(radius, x_i, y_i, z_i, x_c, y_c, z_c)
@@ -29,6 +31,19 @@ class BlackHole:
         glBindBuffer(GL_ARRAY_BUFFER, self.trail_vbo)
         glBufferData(GL_ARRAY_BUFFER, self.trail_s.nbytes, self.trail_s, GL_DYNAMIC_DRAW)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+        self.stars_s = self.make_stars_s(x_i, y_i, z_i)
+        print(self.stars_s, type(self.stars_s), self.stars_s.shape)
+        self.stars_vbo = make_vbo(self.stars_s)
+        
+        theta = np.radians(0.2)
+        self.stars_rot_mat = np.array((
+                        [np.cos(theta), -np.sin(theta), 0],
+                        [np.sin(theta), np.cos(theta), 0],
+                        [0, 0, 1],
+                        ))
+
+
 
     def build_sphere_coords(self, radius, x, y, z, xc, yc, zc):
         heights = np.linspace(0, 2*radius, num=10)
@@ -67,6 +82,34 @@ class BlackHole:
         data[:, :3] = vertices
         data[:, 3:] = colours
         self.data = data
+
+
+    def make_stars_s(self, x, y, z):
+        
+        n = 2000
+
+        points_data = np.zeros((n, 6))
+
+        # x, y, z data
+        multiplier = 5
+        m1 = multiplier * (2 * np.random.random((n, 3)) - 1) /2
+
+        x, y, z = 0, 0, 0
+        center_point = np.array([x, y, z])
+        
+        #m2 = 1/np.sinh(np.tan(m1))
+        m2 = np.tan(np.cos(m1/0.8)/np.sin(m1*0.05) - 1 )*5 + center_point
+
+        points_data[:, :3] = m2
+        
+        # r, g, b data
+        points_data[:, 3:] = np.array([1, 1, 1])
+
+        a = np.array(points_data).astype(np.float32)
+        
+        return a
+
+
 
     def update_point_and_trail_vbo(self):
 

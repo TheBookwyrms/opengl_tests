@@ -16,14 +16,15 @@ class ImguiStuff:
             return True
 
 
-    def initiate_imgui(self, window):
+    def initiate_imgui(self, window, appname):
+        self.appname = appname
         imgui.create_context()
         imgui.get_io().display_size = 100,100
         self.imgui_use = GlfwRenderer(window, attach_callbacks=False)
 
-    def imgui_box(self, dt, paused, window):
+    def imgui_box(self, dt, paused, window, num_left):
         imgui.new_frame()
-        imgui.begin("collision functions")
+        imgui.begin(self.appname)
 
         # dt = 1F / xs
         # 1/x = y/1
@@ -36,9 +37,10 @@ class ImguiStuff:
         else:
             imgui.text(f"paused ({1/dt:.4g} fps)")
 
-        imgui.text(f'{window.angle_x:.3g}, {window.angle_y:.3g}, {window.angle_z:.3g} : angles x, y, z')
-        imgui.text(f'{window.pan_x:.3g}, {window.pan_y:.3g}, {window.pan_z:.3g} : pan x, y, z')
-        imgui.text(f'{window.zoom:.4g} : zoom level')
+        imgui.text(f'{window.angle_x:.3g}, {window.angle_y:.3g} : angles x, y')
+        imgui.text(f'{window.pan_x:.3g}, {window.pan_y:.3g} : pan x, y')
+        imgui.text(f'{window.zoom:.3g} : zoom level')
+        imgui.text(f'{num_left} points left')
 
         imgui.end()
 

@@ -9,15 +9,15 @@ from imgui.integrations.glfw import GlfwRenderer
 
 import numpy as np
 
-from opengl_tests._7_true_base_for_copying.imgui_stuff import *
-from opengl_tests._7_true_base_for_copying.vbo_stuff import *
-from opengl_tests._7_true_base_for_copying.opengl_stuff import *
+from opengl_tests._9_instancing.imgui_stuff import *
+from opengl_tests._9_instancing.vbo_stuff import *
+from opengl_tests._9_instancing.opengl_stuff import *
 
 import time
 
 
 
-class BaseWindow:
+class InstancingTest:
     def __init__(self):
         self.render_distance = 1024
         
@@ -26,11 +26,12 @@ class BaseWindow:
         #self.width, self.height = 600, 500
         self.aspect_ratio = self.width/self.height
 
-        self.angle_x, self.angle_y, self.angle_z = 109, -177, 90
-        self.pan_x, self.pan_y, self.pan_z = 0.0488, -1.72, 0
+        self.angle_x, self.angle_y, self.angle_z = 109, -177, 90# degrees
+        self.pan_x, self.pan_y, self.pan_z = 0, 0, 0 # -39 # self.height/26
 
         self.last_x, self.last_y = 0, 0
         self.zoom = 5
+
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
 
@@ -151,6 +152,7 @@ class BaseWindow:
 
 
         dt = 0
+        start = time.time()
         current = time.time()
 
         self.done = False

@@ -9,15 +9,15 @@ from imgui.integrations.glfw import GlfwRenderer
 
 import numpy as np
 
-from opengl_tests._7_true_base_for_copying.imgui_stuff import *
-from opengl_tests._7_true_base_for_copying.vbo_stuff import *
-from opengl_tests._7_true_base_for_copying.opengl_stuff import *
+from opengl_tests._9_particle_life.imgui_stuff import *
+from opengl_tests._9_particle_life.vbo_stuff import *
+from opengl_tests._9_particle_life.opengl_stuff import *
 
 import time
 
 
 
-class BaseWindow:
+class ParticleLife:
     def __init__(self):
         self.render_distance = 1024
         
@@ -26,11 +26,11 @@ class BaseWindow:
         #self.width, self.height = 600, 500
         self.aspect_ratio = self.width/self.height
 
-        self.angle_x, self.angle_y, self.angle_z = 109, -177, 90
-        self.pan_x, self.pan_y, self.pan_z = 0.0488, -1.72, 0
+        self.angle_x, self.angle_y = 0, 0
+        self.pan_x, self.pan_y = 0, 0
 
         self.last_x, self.last_y = 0, 0
-        self.zoom = 5
+        self.zoom = 13
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
 
@@ -51,11 +51,11 @@ class BaseWindow:
         )
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        glTranslatef(self.pan_x, self.pan_y, self.pan_z)
+        glTranslatef(self.pan_x, self.pan_y, 0)
         matrix = np.array((
             [self.angle_x, 1.0, 0.0, 0.0],
             [self.angle_y, 0.0, 1.0, 0.0],
-            [self.angle_z, 0.0, 0.0, 1.0],
+            [           1, 0.0, 0.0, 1.0],
             ))
         for i in matrix:
             glRotatef(i[0], i[1], i[2], i[3])
@@ -136,7 +136,6 @@ class BaseWindow:
 
         
         glClearColor(0.5, 0.5, 0.5, 1)
-        glEnable(GL_DEPTH_TEST)
 
         # antialiasing (smoother lines)
         #glEnable(GL_MULTISAMPLE)
@@ -158,13 +157,13 @@ class BaseWindow:
 
         while not self.done:
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+            glClear(GL_COLOR_BUFFER_BIT)
 
             self.update_camera()
 
-            opengl_stuff_for_window.per_render_loop()
+            opengl_stuff_for_window.per_render_loop(self.paused, dt)
 
-            self.imgui_stuff.imgui_box(dt, self.paused, self)
+            self.imgui_stuff.imgui_box(dt, self.paused, self, opengl_stuff_for_window.num_left)
             self.imgui_stuff.render_box()
 
             end = time.time()

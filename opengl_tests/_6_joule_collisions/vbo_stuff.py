@@ -34,7 +34,7 @@ def update_vbo(class_instance):
         pass
 
 
-def draw(point_data, point_vbo, draw_type):
+def draw(point_data, point_vbo, draw_type, gl_point_size=3):
         n_per_vertice = 3
         n_per_colour = 4
         try:
@@ -58,7 +58,7 @@ def draw(point_data, point_vbo, draw_type):
         glColorPointer(n_per_colour, GL_FLOAT, stride, ctypes.c_void_p(n_per_vertice * size))
 
         # draw VBO
-        glPointSize(3)
+        glPointSize(gl_point_size)
         glDrawArrays(draw_type, 0, n)
 
         glDisableClientState(GL_VERTEX_ARRAY)

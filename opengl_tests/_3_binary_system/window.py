@@ -136,7 +136,7 @@ class BinarySystem:
             num_b_s = len(self.bodies)
             for b_s in range(num_b_s):
                 bh_or_s = self.bodies[b_s]
-                self.num_planets = np.random.randint(3, 7)
+                #self.num_planets = np.random.randint(3, 7)
                 self.num_planets = 14
                 #self.num_planets=1
                 pos_range = list(range(-39, 41, 7))
@@ -211,6 +211,20 @@ class BinarySystem:
         s_masses = list(range(800, 2400, 50))
         star.m = np.random.choice(s_masses)
         self.bodies.append(star)
+
+
+        #a = [-30, 30]
+        #for i in a:
+        #    for j in a:
+        #        for k in a:
+        #            r = np.random.choice([1, 2, 3, 4])
+        #            star_n = Star(radius=r,
+        #                x_i=i,
+        #                y_i=j,
+        #                z_i=k)
+        #            s_masses = list(range(800, 2400, 50))
+        #            star_n.m = r*np.random.choice(s_masses)
+        #            self.bodies.append(star_n)
 
         gen_planets()
 

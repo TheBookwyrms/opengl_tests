@@ -31,21 +31,15 @@ class CollisionFunctions:
         #self.width, self.height = 600, 500
         self.aspect_ratio = self.width/self.height
 
-        #self.angle_x, self.angle_y, self.angle_z = -90, 0, 45 # degrees
-        self.angle_x, self.angle_y, self.angle_z = 109, -133, 0 # degrees
-        #self.pan_x, self.pan_y, self.pan_z = 109, -133, 0 # -39 # self.height/26
-        self.pan_x, self.pan_y, self.pan_z = 0.0488, -1.72, 0 # -39 # self.height/26
 
         self.angle_x, self.angle_y, self.angle_z = 109+0, -177+0, 0 +90# degrees
         self.pan_x, self.pan_y, self.pan_z = 0.0488, -1.72, 0 # -39 # self.height/26
 
-        #self.angle_x, self.angle_y, self.angle_z = 26.4, -211, 0 # degrees
-        #self.pan_x, self.pan_y, self.pan_z = -1.35, 3.87, 0 # -39 # self.height/26
 
         self.last_x, self.last_y = 0, 0
         self.zoom = 5    # 185
         #self.zoom = 1    # 185
-        #self.zoom=0.1
+        #self.zoom=0.2
         self.pan_sensitivity = 0.001
         self.angle_sensitivity = 0.01
 
@@ -189,7 +183,7 @@ class CollisionFunctions:
             self.update_camera()
 
 
-            draw(func.data, func.vbo, GL_POINTS)
+            draw(func.data, func.vbo, GL_POINTS) # , func.gl_point_size
             #draw(func.data, func.vbo, GL_TRIANGLE_STRIP)
             draw(normal.data, normal.vbo, GL_LINES)
             draw(gravity.data, gravity.vbo, GL_LINES)

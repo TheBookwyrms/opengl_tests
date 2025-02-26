@@ -17,7 +17,6 @@ def update_vbo(data, vbo):
     glBindBuffer(GL_ARRAY_BUFFER, vbo)
     glBufferSubData(GL_ARRAY_BUFFER, 0, data.nbytes, data)
     glBindBuffer(GL_ARRAY_BUFFER, 0)
-    return vbo
 
 
 def draw(point_data, point_vbo, draw_type, gl_point_size=3):

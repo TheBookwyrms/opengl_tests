@@ -19,11 +19,15 @@ class Thing_3:
         # x, y, z data
         multiplier = 5
         m1 = multiplier * (2 * np.random.random((n, 3)) - 1) /2
+
+        x, y, z = 0, 0, 0
+        center_point = np.array([x, y, z])
         
-        m2 = np.sin(m1)
+        #m2 = np.sin(m1)
         #m2 = 1/np.sin(m1)
         #m2 = np.sinh(m1)
         #m2 = 1/np.sinh(np.tan(m1))
+        m2 = np.cos(m1/0.5)/np.sin(m1*0.25) + center_point
 
         points_data[:, :3] = m2
         
@@ -40,6 +44,9 @@ class Thing_3:
 
         self.origin = np.array([0, 0, 0, 1, 1, 1, 1]).astype(np.float32)
         self.origin_vbo = make_vbo(self.origin)
+
+        self.f_2_m10 = np.array([5, 2, -10, 1, 1, 1, 1]).astype(np.float32)
+        self.f_2_m10_vbo = make_vbo(self.f_2_m10)
 
 
         deg_per_rot = 0.2
@@ -72,3 +79,4 @@ class Thing_3:
 
         draw(self.points_data, self.points_vbo, GL_POINTS, gl_point_size=6)
         draw(self.origin, self.origin_vbo, GL_POINTS, gl_point_size=15)
+        draw(self.f_2_m10, self.f_2_m10_vbo, GL_POINTS, gl_point_size=35)

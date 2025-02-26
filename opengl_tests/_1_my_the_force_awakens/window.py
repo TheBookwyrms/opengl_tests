@@ -374,6 +374,12 @@ class MyForceAwakens:
 
                     p.update_point_and_trail_vbo()
 
+                    if type(p) == BlackHole:
+                        #draw(p.stars_s, p.stars_vbo, GL_POINTS)
+                        #p.stars_s[:, :3] = np.matmul(p.stars_s[:, :3], p.stars_rot_mat)
+                        #p.stars_vbo = update_vbo(p.stars_s, p.stars_vbo)
+                        pass
+
             
             self.imgui_stuff.imgui_box(dt, self.bodies, self.paused)
             self.imgui_stuff.render_box()

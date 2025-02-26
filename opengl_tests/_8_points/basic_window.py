@@ -12,6 +12,7 @@ import numpy as np
 from opengl_tests._8_points.imgui_stuff import *
 from opengl_tests._8_points.vbo_stuff import *
 from opengl_tests._8_points.opengl_stuff import *
+from opengl_tests._8_points.old_cool_things.thing_3 import *
 
 import time
 
@@ -27,8 +28,9 @@ class PointsStuff:
         self.aspect_ratio = self.width/self.height
 
 
-        self.angle_x, self.angle_y, self.angle_z = 109+0, -177+0, 0 +90# degrees
+        self.angle_x, self.angle_y, self.angle_z = 109, -177, 90# degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0 # -39 # self.height/26
+
 
 
         self.last_x, self.last_y = 0, 0
@@ -151,12 +153,12 @@ class PointsStuff:
 
         opengl_stuff_for_window = OpenGLStuff()
         opengl_stuff_for_window.setup()
+        #th = Thing_3()
+        #th.setup()
 
-        dt_num = 0
-
-        dt = 0
-        start = time.time()
         current = time.time()
+        dt_sum = np.zeros(500)
+        k = 0
 
         self.done = False
         self.paused = False
@@ -167,14 +169,23 @@ class PointsStuff:
 
             self.update_camera()
 
-            opengl_stuff_for_window.per_render_loop()
+            opengl_stuff_for_window.per_render_loop(self.paused)
+            #th.per_render_loop()
 
-            self.imgui_stuff.imgui_box(dt, self.paused, self)
+            self.imgui_stuff.imgui_box(np.average(dt_sum), self.paused, self)
             self.imgui_stuff.render_box()
+
+            if not self.paused:
+                self.angle_z += 0.1
 
             end = time.time()
             if end-current !=0:
-                dt = end-current
+                try:
+                    dt_sum[k] = end-current
+                except:
+                    k = 0
+                    dt_sum[k] = end-current
+                k += 1
             current = end
             glfw.swap_buffers(window)
             glfw.poll_events()
