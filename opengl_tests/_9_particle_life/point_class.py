@@ -14,19 +14,29 @@ rgb_table = {
     'cyan'    : (0, 1, 1),
 }
 
+colours = ['black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan']
+
 
 class Point:
     def __init__(self, x=0, y=0, col='white'):
-        self.x, self.y = x, y
+        #self.x, self.y = x, y
         self.colour = col
 
+        self.force_to = {}
+        for i in colours:
+            self.force_to[i] = 2*np.random.random()-1
+
+        self.v = np.array([0, 0]).astype(np.float64)
+
         data = np.empty((6))
-        data[:2] = self.x, self.y
+        data[:2] = x, y
         data[2:-1] = rgb_table[self.colour]
         data[-1] = 1
 
         self.data = np.array(data).astype(np.float32)
         self.vbo = make_vbo(self.data)
+
+        self.grid_square = (None, None)
 
     def fix_per_boundary_conditions(self, p, boundary_conditions):
         left, right, top, bottom = boundary_conditions
@@ -35,17 +45,19 @@ class Point:
 
         x_good, y_good = (False,)*2
 
-        p.data[0] %= d_right_left
+        #p.data[0] %= d_right_left
+        ##p.data[0] = p.data[0] - right
         #p.data[1] %= d_top_bottom
+        #p.data[0] -= right
 
-        #while not x_good:
-        #    if   p.data[0] > right:
-        #        p.data[0] -= d_right_left
-        #    elif p.data[0] < left:
-        #        p.data[0] += d_right_left
-        #    else:
-        #        x_good = True
-        #
+        while not x_good:
+            if   p.data[0] > right:
+                p.data[0] -= d_right_left
+            elif p.data[0] < left:
+                p.data[0] += d_right_left
+            else:
+                x_good = True
+        
         while not y_good:
             if   p.data[1] > top:
                 p.data[1] -= d_top_bottom

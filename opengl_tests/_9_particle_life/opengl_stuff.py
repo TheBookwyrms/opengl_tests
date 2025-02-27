@@ -18,7 +18,8 @@ class OpenGLStuff:
     def setup(self):
         # setup of all elements to be rendered on each loop
 
-        left, right, top, bottom = -10,10, 10, -10
+        left, right, top, bottom = -15,10, 20, 5
+        left, right, top, bottom = -10, 10, 10, -10
         self.boundary_lines = np.array([
             [left, bottom, 1, 1, 1, 1], [left, top, 1, 1, 1, 1],
 
@@ -29,29 +30,20 @@ class OpenGLStuff:
             [right, bottom, 1, 1, 1, 1], [left, bottom, 1, 1, 1, 1],
         ]).astype(np.float32)
         self.boundary_lines_vbo = make_vbo(self.boundary_lines)
-        self.boundary_conditions = np.array([-10, 10, 10, -10])   
+        self.boundary_conditions = np.array([left, right, top, bottom])   
 
 
-        num_partitions = 7
 
-        self.x_blocks = np.linspace(left, right, num_partitions, endpoint=False)
-        self.y_blocks = np.linspace(bottom, top, num_partitions, endpoint=False)
+
+        self.num_partitions = 4
+        self.x_blocks = np.linspace(left, right, self.num_partitions, endpoint=False)
+        self.y_blocks = np.linspace(bottom, top, self.num_partitions, endpoint=False)
         
-        '''p[x, y]'''
-
-        b = np.linspace(-8, 10, 13, endpoint=False)
-        print(b)
-        place_in_x = []
-        for a in b:
-            c = bisect.bisect_left(self.x_blocks, a)
-            place_in_x.append(self.x_blocks[c-1])
-        place_in_x = np.array(place_in_x)
-        print(place_in_x)
 
 
 
 
-        num_points = 100
+        num_points = 50
         rx = np.linspace(left, right, 40)
         ry = np.linspace(bottom, top, 40)
         colours = ['black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan']
@@ -69,19 +61,110 @@ class OpenGLStuff:
         
         self.num_left = len(self.all_points)
 
+        a = self.num_partitions-2
 
         for p in self.all_points:
             x_bin = bisect.bisect_left(self.x_blocks, p.data[0])
             y_bin = bisect.bisect_left(self.y_blocks, p.data[1])
+            p.grid_square = np.array([x_bin-a, y_bin-a])
+            #print(p.grid_square)
+
+        
+        grid_per_point = np.array([p.grid_square for p in self.all_points])
+
+        grid = np.empty((self.num_partitions, self.num_partitions), dtype=Point)
+        #print(grid)
+        for p in self.all_points:
+            for x in [-1, 0, 1]:
+                for y in [-1, 0, 1]:
+                    xy = np.array([x, y])
+                    pgrid = p.grid_square
+                    pos = pgrid-xy
+                    pos = (pos[0], pos[1])
 
 
+                    if pos[0] not in list(range(self.num_partitions)):
+                        if pos[0] - self.num_partitions in list(range(self.num_partitions)):
+                            pos = (pos[0] - self.num_partitions, pos[1])
+                        elif pos[0] + self.num_partitions in list(range(self.num_partitions)):
+                            pos = (pos[0] + self.num_partitions, pos[1])
+                            
+                    if pos[1] not in list(range(self.num_partitions)):
+                        if pos[1] - self.num_partitions in list(range(self.num_partitions)):
+                            pos = (pos[0], pos[1] - self.num_partitions)
+                        elif pos[1] + self.num_partitions in list(range(self.num_partitions)):
+                            pos = (pos[0], pos[1] + self.num_partitions)
+
+
+
+                    try:
+                        if grid[pos] == None:
+                            grid[pos] = [p]
+                        else:
+                            b = list(grid[pos])
+                            b.append(p)
+                            #print(grid[p.grid_square-xy].shape, np.array(b).shape)
+                            grid[pos] = b
+                    except:
+                        pass
+
+                    #if pos in ((2, 4), (2, 5) , (2, 3) ,
+                    #             (1, 4) , (1, 5) , (1, 3) ,
+                    #             (3, 4) , (3, 5) , (3, 3)):
+                    #    print(grid[2, 4], "a")
+
+
+        #'''
+        #grid_per_point : N long array, containing the grid of point i
+        #'''
+#
+        #cs = np.empty((self.num_partitions**2, self.num_left), dtype=list)
+        #xy = 0
+        #comparisons = np.empty((len(self.all_points)), dtype=Point)
+        #for x in range(self.num_partitions):
+        #    for y in range(self.num_partitions):
+        #        ''' for each xy pair of the grid '''
+#
+        #        b = grid_per_point - np.array([x, y])
+        #        ''' find distance of each point from x, y '''
+#
+        #        c = [1 if ((i[0] in [-1, 0, 1]) and (i[1] in [-1, 0, 1])) else 0 for i in b]
+        #        ''' if x, y is in the square surrounding point, 1, else 0 '''
+#
+        #        cs[xy] = np.array(c)
+        #        xy += 1
+#
+        #        for i in range(len(comparisons)):
+        #            if c[i] == 1:
+        #                ''' if x,y is surrounding point '''
+        #                try:
+        #                    comparisons[i].append(self.all_points[i])
+        #                except:
+        #                    comparisons[i] = [self.all_points[i],]
+#
+#
+        ##print(c)
+        ##print()
+#
         if not paused:
-
-            self.all_points = do_physics(self.all_points, dt)
-
+            self.all_points = new_physics_test(self.all_points, grid, dt)
+            
             for i in self.all_points:
                 i.fix_per_boundary_conditions(i, self.boundary_conditions)
                 i.vbo = update_vbo(i.data, i.vbo)
+
+
+
+        #for index, grid_tuple in grid_per_point:
+
+
+        #if not paused:
+#
+        #    self.all_points = do_physics(self.all_points, dt)
+#
+        #    for i in self.all_points:
+        #        i.fix_per_boundary_conditions(i, self.boundary_conditions)
+        #        i.vbo = update_vbo(i.data, i.vbo)
 
         for i in self.all_points:
             draw(i.data, i.vbo, GL_POINTS, gl_point_size=5)
