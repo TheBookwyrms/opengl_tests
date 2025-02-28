@@ -144,8 +144,8 @@ class BaseWindow:
         glEnable(GL_DEPTH_TEST)
 
         # antialiasing (smoother lines)
-        #glEnable(GL_MULTISAMPLE)
-        #glEnable(GL_POINT_SMOOTH)
+        glEnable(GL_MULTISAMPLE)
+        glEnable(GL_POINT_SMOOTH)
 
         # opacity
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -169,7 +169,7 @@ class BaseWindow:
 
             opengl_stuff_for_window.per_render_loop()
 
-            self.imgui_stuff.imgui_box(dt, self.paused, self)
+            self.imgui_stuff.imgui_box(dt, self, opengl_stuff_for_window)
             self.imgui_stuff.render_box()
 
             end = time.time()

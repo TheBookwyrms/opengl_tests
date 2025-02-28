@@ -20,7 +20,7 @@ def update_vbo(data, vbo):
     return vbo
 
 
-def draw(point_data, point_vbo, draw_type, gl_point_size=3):
+def draw(point_data, point_vbo, draw_type, gl_point_size=3, gl_line_width=3):
     n_per_vertice = 3
     n_per_colour = 4
     items_per_point = n_per_vertice + n_per_colour
@@ -40,6 +40,7 @@ def draw(point_data, point_vbo, draw_type, gl_point_size=3):
 
     # draw VBO
     glPointSize(gl_point_size)
+    glLineWidth(gl_line_width)
     glDrawArrays(draw_type, 0, n)
 
     glDisableClientState(GL_VERTEX_ARRAY)

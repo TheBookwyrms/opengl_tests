@@ -22,7 +22,7 @@ class ImguiStuff:
         imgui.get_io().display_size = 100,100
         self.imgui_use = GlfwRenderer(window, attach_callbacks=False)
 
-    def imgui_box(self, dt, paused, window):
+    def imgui_box(self, dt, window, opengl):
         imgui.new_frame()
         imgui.begin(self.appname)
 
@@ -31,7 +31,7 @@ class ImguiStuff:
         # xy = 1
         # 1/x = y
         # 1/dt = fps
-        if not paused:
+        if not window.paused:
             if dt != 0:
                 imgui.text(f'{1/dt:.4g} fps')
         else:
