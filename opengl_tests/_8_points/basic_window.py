@@ -70,15 +70,23 @@ class PointsStuff:
         window = glfw.create_window(self.width, self.height, window_name, None, None)
         glfw.make_context_current(window)
         glfw.get_framebuffer_size(window)
-        self.cursor_key_mouse_callbacks(window)
+        self.set_callbacks(window)
 
         return window
 
-    def cursor_key_mouse_callbacks(self, window):
+    def set_callbacks(self, window):
         glfw.set_key_callback(window, self.key_callbacks)
         glfw.set_mouse_button_callback(window, self.mouse_callbacks)
         glfw.set_cursor_pos_callback(window, self.cursor_pos_callbacks)
         glfw.set_scroll_callback(window, self.scroll_callbacks)
+        glfw.set_window_size_callback(window, self.window_callbacks)
+    
+    def window_callbacks(self, window, width, height):
+        self.width, self.height = width, height
+        self.zoom = self.zoom*self.aspect_ratio*self.height/self.width
+        self.aspect_ratio = width/height
+        glViewport(0, 0, width, height)
+
 
     def scroll_callbacks(self, window, xoffset, yoffset):
         if (self.zoom-0.24*yoffset != 0) and not ((self.zoom-0.24*yoffset > -0.1) & (self.zoom-0.24*yoffset < 0.1)):

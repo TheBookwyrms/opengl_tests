@@ -22,7 +22,7 @@ class ImguiStuff:
         imgui.get_io().display_size = 100,100
         self.imgui_use = GlfwRenderer(window, attach_callbacks=False)
 
-    def imgui_box(self, dt, paused, window, num_left):
+    def imgui_box(self, dt, paused, window, opengl_class):
         imgui.new_frame()
         imgui.begin(self.appname)
 
@@ -40,7 +40,8 @@ class ImguiStuff:
         imgui.text(f'{window.angle_x:.3g}, {window.angle_y:.3g} : angles x, y')
         imgui.text(f'{window.pan_x:.3g}, {window.pan_y:.3g} : pan x, y')
         imgui.text(f'{window.zoom:.3g} : zoom level')
-        imgui.text(f'{num_left} points left')
+        imgui.text(f'{opengl_class.num_left} points left')
+        imgui.text(f'{opengl_class.num_partitions} by {opengl_class.num_partitions} grid')
 
         imgui.end()
 

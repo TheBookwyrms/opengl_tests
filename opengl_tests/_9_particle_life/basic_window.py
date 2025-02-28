@@ -138,8 +138,8 @@ class ParticleLife:
         glClearColor(0.5, 0.5, 0.5, 1)
 
         # antialiasing (smoother lines)
-        #glEnable(GL_MULTISAMPLE)
-        #glEnable(GL_POINT_SMOOTH)
+        glEnable(GL_MULTISAMPLE)
+        glEnable(GL_POINT_SMOOTH)
 
         # opacity
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -163,7 +163,7 @@ class ParticleLife:
 
             opengl_stuff_for_window.per_render_loop(self.paused, dt)
 
-            self.imgui_stuff.imgui_box(dt, self.paused, self, opengl_stuff_for_window.num_left)
+            self.imgui_stuff.imgui_box(dt, self.paused, self, opengl_stuff_for_window)
             self.imgui_stuff.render_box()
 
             end = time.time()

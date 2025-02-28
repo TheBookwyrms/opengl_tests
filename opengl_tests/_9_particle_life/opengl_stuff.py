@@ -35,7 +35,7 @@ class OpenGLStuff:
 
 
 
-        self.num_partitions = 4
+        self.num_partitions = 35
         self.x_blocks = np.linspace(left, right, self.num_partitions, endpoint=False)
         self.y_blocks = np.linspace(bottom, top, self.num_partitions, endpoint=False)
         
@@ -43,7 +43,7 @@ class OpenGLStuff:
 
 
 
-        num_points = 50
+        num_points = 150
         rx = np.linspace(left, right, 40)
         ry = np.linspace(bottom, top, 40)
         colours = ['black', 'white', 'red', 'green', 'blue', 'yellow', 'magenta', 'cyan']
@@ -56,12 +56,37 @@ class OpenGLStuff:
         self.all_points = np.array(all_points)
 
 
+
+        # set of lines on x[x_blocks], bottom to x[x_blocks], top
+        # set of lines on left, y[y_blocks] to right, y[y_blocks]
+        
+        y_lines = []
+        for y in self.y_blocks:
+            y_lines.append([left, y, 1, 1, 1, 0.25])
+            y_lines.append([right, y, 1, 1, 1, 0.25])
+
+        x_lines = []
+        for x in self.x_blocks:
+
+            x_lines.append([x, bottom, 1, 1, 1, 0.25])
+            x_lines.append([x, top, 1, 1, 1, 0.25])
+
+        self.y_lines = np.array(y_lines).astype(np.float32)
+        self.x_lines = np.array(x_lines).astype(np.float32)
+
+        self.y_vbo, self.x_vbo = make_vbo(self.y_lines), make_vbo(self.x_lines)
+
+
+
+
+
     def per_render_loop(self, paused, dt):
         # must draw and perform every other on-loop action
         
         self.num_left = len(self.all_points)
 
-        a = self.num_partitions-2
+        #a = self.num_partitions-2
+        a=1
 
         for p in self.all_points:
             x_bin = bisect.bisect_left(self.x_blocks, p.data[0])
@@ -71,6 +96,8 @@ class OpenGLStuff:
 
         
         grid_per_point = np.array([p.grid_square for p in self.all_points])
+                   
+
 
         grid = np.empty((self.num_partitions, self.num_partitions), dtype=Point)
         #print(grid)
@@ -83,25 +110,24 @@ class OpenGLStuff:
                     pos = (pos[0], pos[1])
 
 
-                    if pos[0] not in list(range(self.num_partitions)):
-                        if pos[0] - self.num_partitions in list(range(self.num_partitions)):
-                            pos = (pos[0] - self.num_partitions, pos[1])
-                        elif pos[0] + self.num_partitions in list(range(self.num_partitions)):
-                            pos = (pos[0] + self.num_partitions, pos[1])
-                            
-                    if pos[1] not in list(range(self.num_partitions)):
-                        if pos[1] - self.num_partitions in list(range(self.num_partitions)):
-                            pos = (pos[0], pos[1] - self.num_partitions)
-                        elif pos[1] + self.num_partitions in list(range(self.num_partitions)):
-                            pos = (pos[0], pos[1] + self.num_partitions)
-
+                    #if pos[0] not in list(range(self.num_partitions)):
+                    #    if pos[0] - self.num_partitions in list(range(self.num_partitions)):
+                    #        pos = (pos[0] - self.num_partitions, pos[1])
+                    #    elif pos[0] + self.num_partitions in list(range(self.num_partitions)):
+                    #        pos = (pos[0] + self.num_partitions, pos[1])
+                    #        
+                    #if pos[1] not in list(range(self.num_partitions)):
+                    #    if pos[1] - self.num_partitions in list(range(self.num_partitions)):
+                    #        pos = (pos[0], pos[1] - self.num_partitions)
+                    #    elif pos[1] + self.num_partitions in list(range(self.num_partitions)):
+                    #        pos = (pos[0], pos[1] + self.num_partitions)
 
 
                     try:
                         if grid[pos] == None:
                             grid[pos] = [p]
                         else:
-                            b = list(grid[pos])
+                            b = grid[pos]
                             b.append(p)
                             #print(grid[p.grid_square-xy].shape, np.array(b).shape)
                             grid[pos] = b
@@ -113,6 +139,7 @@ class OpenGLStuff:
                     #             (3, 4) , (3, 5) , (3, 3)):
                     #    print(grid[2, 4], "a")
 
+        #print(grid[2, 4])
 
         #'''
         #grid_per_point : N long array, containing the grid of point i
@@ -146,8 +173,16 @@ class OpenGLStuff:
         ##print(c)
         ##print()
 #
+        #if not paused:
+        #    self.all_points = new_physics_test(self.all_points, grid, dt)
+        #    
+        #    for i in self.all_points:
+        #        i.fix_per_boundary_conditions(i, self.boundary_conditions)
+        #        i.vbo = update_vbo(i.data, i.vbo)
+
+
         if not paused:
-            self.all_points = new_physics_test(self.all_points, grid, dt)
+            self.all_points = physics_test_2(self.all_points, grid, dt)
             
             for i in self.all_points:
                 i.fix_per_boundary_conditions(i, self.boundary_conditions)
@@ -170,3 +205,6 @@ class OpenGLStuff:
             draw(i.data, i.vbo, GL_POINTS, gl_point_size=5)
         
         draw(self.boundary_lines, self.boundary_lines_vbo, GL_LINES)
+
+        draw(self.x_lines, self.x_vbo, GL_LINES, gl_line_width=3)
+        draw(self.y_lines, self.y_vbo, GL_LINES, gl_line_width=3)

@@ -1,6 +1,98 @@
 import numpy as np
 
 
+def physics_test_2(all_points_array, grid, dt):
+
+    indices_to_pop = []
+
+    for p1 in all_points_array:
+        pgrid = p1.grid_square
+        
+        f_total = np.array([0, 0]).astype(np.float32)
+
+        for x in [-1, 0, 1]:
+            for y in [-1, 0, 1]:
+                box_to_compare = pgrid-np.array([x, y])
+                #if (box_to_compare[0] > 4) or (box_to_compare[1] > 4):
+                #    print(box_to_compare)
+
+                try:
+                    a = grid[box_to_compare]
+                except:
+                    continue
+
+                b0, b1 = box_to_compare[0], box_to_compare[1]
+
+                try:
+                    for p2 in grid[b0, b1]:
+                        pass
+                except:
+                    continue
+                
+                for p2 in grid[b0, b1]:
+
+                    if p1 == p2:
+                        continue
+
+                    p1_s, p2_s, = p1.data[:2], p2.data[:2]
+
+                    dist_vec = p2_s-p1_s
+                    dist = np.linalg.norm(dist_vec)
+
+                    if dist<0.0001:
+                        #index = np.array(np.where(all_points_array == p2)).astype(int)
+                        #index = index[0][0]
+#
+                        #p2.data[:2] = (
+                        #    np.random.choice(list(range(1000, 10000, 25))),
+                        #    np.random.choice(list(range(1000, 10000, 25)))
+                        #    )
+                        #
+                        #indices_to_pop.append(index)
+#
+                        #p1_s, p2_s, = p1.data[:2], p2.data[:2]
+#
+                        #dist_vec = p2_s-p1_s
+                        #dist = np.linalg.norm(dist_vec)
+
+                        continue
+
+                    dist_unit_vec = dist_vec/dist
+
+                    a = 0.1
+                    beta = 0.2
+                    colour_multiplier=p1.force_to[str(p2.colour)]
+                    if dist < beta:
+                        f = -((dist_unit_vec/beta)-3)
+                    elif dist < 1:
+                        f = a*colour_multiplier*(1-(np.abs(2*dist_unit_vec-1-beta)/(1-beta)))
+                    else:
+                        f = np.array([0, 0])
+                    f_total += f
+
+        v_change = f_total*dt
+        p1.v += v_change
+
+        if np.linalg.norm(p1.v) > 4:
+            p1.v /= np.linalg.norm(p1.v)
+
+        pos_change = p1.v*dt
+        p1.data[:2] += pos_change
+
+    #a2 = list(all_points_array)
+    #num_popped = 0
+    #for i in indices_to_pop:
+    #    a2.pop(i-num_popped)
+    #    num_popped += 1
+    #all_points_array = np.array(a2)
+
+    return all_points_array
+
+
+
+
+
+
 def new_physics_test(all_points_array, grid, dt):
 
     indices_to_pop = []
@@ -90,51 +182,6 @@ def new_physics_test(all_points_array, grid, dt):
 
 
 
-    #for index, comparisons in enumerate(comparison_array):
-    #    #print(comparisons)
-#
-    #    p1 = all_points_array[index]
-    #                
-    #    f_total = np.array([0, 0]).astype(np.float32)
-#
-    #    for p2 in comparisons:
-    #        #print(p1, p2, p1.data[:2], p2.data[:2]) '''important'''
-    #        if p1 is p2:
-    #            continue
-    #        p1_s, p2_s, = p1.data[:2], p2.data[:2]
-#
-#
-#
-    #        #print(p1_s, p2_s)
-    #        
-    #        dist_vec = p2_s-p1_s
-    #        dist = np.linalg.norm(dist_vec)
-    #        dist_unit_vec = dist_vec/dist
-#
-    #        print(dist)
-#
-#
-    #        beta = 3
-    #        a=1
-    #        if dist < beta:
-    #            f = (dist_unit_vec/beta)-1
-    #        elif dist < 1:
-    #            f = a*(1-(np.abs(2*dist_unit_vec-1-beta)/(1-beta)))
-    #        else:
-    #            f = np.array([0, 0])
-    #    
-    #        f_total += f
-#
-    #    pos_change = f_total*dt*dt
-#
-    #    all_points_array[index].data[:2] += pos_change
-#
-    #
-    ##print(all_points_array[0].data[:2])
-#
-    #
-    #return all_points_array
-
 
 
 
@@ -159,14 +206,16 @@ def do_physics(points_array, dt):
                 continue
             dist_unit_vec = dist_vec/dist
 
+            a = 4
             beta = 3
-            a=1
-            if dist < beta:
-                f = (dist_unit_vec/beta)-1
-            elif dist < 1:
-                f = a*(1-(np.abs(2*dist_unit_vec-1-beta)/(1-beta)))
+            colour_multiplier=i.force_to[str(j.colour)]
+            #if dist < beta:
+            #    f = (dist_unit_vec/beta)-3
+            if dist < 3:
+                f = a*colour_multiplier*(1-(np.abs(2*dist_unit_vec-1-beta)/(1-beta)))
             else:
                 f = np.array([0, 0])
+            f_total += f
             
             f_total += f
         all_f_total.append(f_total)
