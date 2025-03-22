@@ -9,15 +9,17 @@ from imgui.integrations.glfw import GlfwRenderer
 
 import numpy as np
 
-from opengl_tests._9_instancing.imgui_stuff import *
-from opengl_tests._9_instancing.vbo_stuff import *
-from opengl_tests._9_instancing.opengl_stuff import *
+from opengl_tests._10_shaders.imgui_stuff import *
+from opengl_tests._10_shaders.vbo_vao_stuff import *
+from opengl_tests._10_shaders.opengl_stuff import *
 
 import time
 
+import glm
 
 
-class InstancingTest:
+
+class UsesShaders:
     def __init__(self):
         self.render_distance = 1024
         
@@ -26,7 +28,7 @@ class InstancingTest:
         #self.width, self.height = 600, 500
         self.aspect_ratio = self.width/self.height
 
-        self.angle_x, self.angle_y, self.angle_z = 109, -177, 90# degrees
+        self.angle_x, self.angle_y, self.angle_z = 0, 0, 0# degrees
         self.pan_x, self.pan_y, self.pan_z = 0, 0, 0 # -39 # self.height/26
 
         self.last_x, self.last_y = 0, 0
@@ -38,28 +40,28 @@ class InstancingTest:
         self.panning, self.angling = False, False
 
     
-    def update_camera(self):
-
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        glOrtho(
-            -self.aspect_ratio * self.zoom,
-            self.aspect_ratio * self.zoom,
-            -self.zoom,
-            self.zoom,
-            -self.render_distance,
-            self.render_distance,
-        )
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        glTranslatef(self.pan_x, self.pan_y, self.pan_z)
-        matrix = np.array((
-            [self.angle_x, 1.0, 0.0, 0.0],
-            [self.angle_y, 0.0, 1.0, 0.0],
-            [self.angle_z, 0.0, 0.0, 1.0],
-            ))
-        for i in matrix:
-            glRotatef(i[0], i[1], i[2], i[3])
+    #def update_camera(self):
+#
+    #    glMatrixMode(GL_PROJECTION)
+    #    glLoadIdentity()
+    #    glOrtho(
+    #        -self.aspect_ratio * self.zoom,
+    #        self.aspect_ratio * self.zoom,
+    #        -self.zoom,
+    #        self.zoom,
+    #        -self.render_distance,
+    #        self.render_distance,
+    #    )
+    #    glMatrixMode(GL_MODELVIEW)
+    #    glLoadIdentity()
+    #    glTranslatef(self.pan_x, self.pan_y, self.pan_z)
+    #    matrix = np.array((
+    #        [self.angle_x, 1.0, 0.0, 0.0],
+    #        [self.angle_y, 0.0, 1.0, 0.0],
+    #        [self.angle_z, 0.0, 0.0, 1.0],
+    #        ))
+    #    for i in matrix:
+    #        glRotatef(i[0], i[1], i[2], i[3])
 
 
     def build_window(self, window_name):
@@ -124,6 +126,9 @@ class InstancingTest:
             if (key == glfw.KEY_SPACE) and (self.paused) and (time.time()- pause_time > 0.01):
                 self.paused = False
 
+
+
+
     def main(self):
         if not glfw.init():
             return
@@ -162,9 +167,9 @@ class InstancingTest:
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-            self.update_camera()
+            #self.update_camera()
 
-            opengl_stuff_for_window.per_render_loop()
+            opengl_stuff_for_window.per_render_loop(self)
 
             self.imgui_stuff.imgui_box(dt, self.paused, self)
             self.imgui_stuff.render_box()

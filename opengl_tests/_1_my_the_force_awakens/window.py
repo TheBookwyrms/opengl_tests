@@ -146,8 +146,9 @@ class MyForceAwakens:
             for b in range(num_b):
                 bh = self.bodies[b]
                 num_planets = np.random.randint(3, 7)
-                #num_planets=3
+                #num_planets=50
                 pos_range = list(range(-39, 41, 7))
+                #pos_range = list(range(-100, 100, 7))
                 for i in range(num_planets):
                     r = np.random.randint(2, 3)-np.random.random()
                     planet = Sphere(
