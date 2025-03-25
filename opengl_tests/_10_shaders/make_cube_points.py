@@ -5,19 +5,27 @@ import numpy as np
 
 from itertools import combinations
 
+from opengl_tests._10_shaders.shaders.shaders import *
+
 class Cube:
     def __init__(self, center=(0, 0, 0),
+                 
                  radius=1, # half_side_length
-                 v_cols=((np.random.random(), np.random.random(), np.random.random()),
-                                       (np.random.random(), np.random.random(), np.random.random()),
-                                       (np.random.random(), np.random.random(), np.random.random()),
-                                       (np.random.random(), np.random.random(), np.random.random()),
-                                       (np.random.random(), np.random.random(), np.random.random()),
-                                       (np.random.random(), np.random.random(), np.random.random()),
-                                       (np.random.random(), np.random.random(), np.random.random()),
-                                       (np.random.random(), np.random.random(), np.random.random()),
-                                       )):
-        self.data = self.make_triangles_of_cube(center, radius, v_cols)
+                 v_cols=(
+                            (np.random.random(), np.random.random(), np.random.random()),
+                            (np.random.random(), np.random.random(), np.random.random()),
+                            (np.random.random(), np.random.random(), np.random.random()),
+                            (np.random.random(), np.random.random(), np.random.random()),
+                            (np.random.random(), np.random.random(), np.random.random()),
+                            (np.random.random(), np.random.random(), np.random.random()),
+                            (np.random.random(), np.random.random(), np.random.random()),
+                            (np.random.random(), np.random.random(), np.random.random()),
+                         )):
+        self.data = self.make_triangles_of_cube((0, 0, 0), 1, v_cols)
+
+        self.transformation_matrix = translation_rotation_scale_matrix(t=center, s=(radius, radius, radius))
+
+
 
 
     def make_triangles_of_cube(self,

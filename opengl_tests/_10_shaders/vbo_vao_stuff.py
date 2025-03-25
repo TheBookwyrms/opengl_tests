@@ -22,9 +22,20 @@ def make_vao_vbo(data):
     glEnableVertexAttribArray(1)
     glVertexAttribPointer(1, n_per_colour, GL_FLOAT, GL_FALSE, data_stride, ctypes.c_void_p(n_per_vertice * data.itemsize))
     
+    glBindBuffer(GL_ARRAY_BUFFER, 0)
     glBindVertexArray(0)
 
     return vao, vbo
+
+
+def update_vao_vbo(data, vao, vbo):
+    glBindVertexArray(vao)
+    glBindBuffer(GL_ARRAY_BUFFER, vbo)
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, data.nbytes, data)
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0)
+    glBindVertexArray(0)
 
 
 def draw_vao(vao, draw_type, n):
@@ -32,8 +43,6 @@ def draw_vao(vao, draw_type, n):
     glPointSize(10)
     glDrawArrays(draw_type, 0, n)
     glBindVertexArray(0)
-
-
 
 
 def make_vbo(data):
