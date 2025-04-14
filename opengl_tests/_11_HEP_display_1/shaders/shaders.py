@@ -3,6 +3,7 @@ from OpenGL.GLU import *
 from OpenGL.GL.shaders import compileShader, compileProgram
 
 import os
+import sys
 
 import numpy as np
 
@@ -14,7 +15,7 @@ def set_mat4_uniform(shader_program, uniform_name, mat4):
 
 
 
-def make_uniforms(shader_program, window, instance):
+def make_uniforms(shader_program, window):
     (l, r, b, t, n, f) = (-window.aspect_ratio * window.zoom,
                         window.aspect_ratio * window.zoom,
                         -window.zoom,
@@ -37,7 +38,7 @@ def make_uniforms(shader_program, window, instance):
     inv_cam_transform = np.linalg.inv(camera_transformation)
 
 
-    world_transform = instance[3]
+    world_transform = np.eye(4)
 
 
     set_mat4_uniform(shader_program, "orthographic_projection", orthographic_projection)
@@ -90,8 +91,9 @@ def translation_rotation_scale_matrix(t=(0, 0, 0), r=(0, 0, 0), s=(1, 1, 1)):
 
 def make_shaders():
 
+
     this_file_path = os.path.abspath(__file__)
-    lst_f_path = this_file_path.split("\\")
+    lst_f_path = this_file_path.split(os.sep)
 
     vertex_path = lst_f_path.copy()
     fragment_path = lst_f_path.copy()
@@ -99,8 +101,8 @@ def make_shaders():
     vertex_path[-1] = "vertex_shader.glsl"
     fragment_path[-1] = "fragment_shader.glsl"
 
-    vertex_path = "\\".join(vertex_path)
-    fragment_path = "\\".join(fragment_path)
+    vertex_path   = os.sep.join(vertex_path)
+    fragment_path = os.sep.join(fragment_path)
 
     with open(vertex_path, "r") as f:
         vertex_shader_text = f.read()

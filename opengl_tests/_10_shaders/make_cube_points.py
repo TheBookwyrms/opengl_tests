@@ -9,21 +9,15 @@ from opengl_tests._10_shaders.shaders.shaders import *
 
 class Cube:
     def __init__(self, center=(0, 0, 0),
-                 
                  radius=1, # half_side_length
-                 v_cols=(
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                         )):
+                 v_cols=np.zeros((8, 3))):
         self.data = self.make_triangles_of_cube((0, 0, 0), 1, v_cols)
 
         self.transformation_matrix = translation_rotation_scale_matrix(t=center, s=(radius, radius, radius))
+
+        
+
+
 
 
 

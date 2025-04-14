@@ -18,29 +18,21 @@ class OpenGLStuff:
 
 
         self.instances = []
-        sn = [(0, 0, 0), (5, 4, 8)]
+        k = 5
+        i = np.arange(start=-k, stop=k+1, step=3)
+        sn = []
+        for x in i:
+            for y in i:
+                for z in i:
+                    sn.append((x, y, z))
+        #sn = [(0, 0, 0), (5, 4, 8)]
         for s in sn:
-            cube = Cube(center=s,
-                 v_cols=(
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                            (np.random.random(), np.random.random(), np.random.random()),
-                         ))
+            cube = Cube(center=s, v_cols=np.random.random((8, 3)))
             data = cube.data
             transformation = cube.transformation_matrix
             vao, vbo = make_vao_vbo(data)
             self.instances.append((vao, vbo, data, transformation))
 
-
-
-        #cube1 = Cube()
-        #self.data = cube1.data
-        #self.vao, self.vbo = make_vao_vbo(self.data)
 
         self.shader_program = make_shaders()
 
@@ -51,13 +43,16 @@ class OpenGLStuff:
 
         glUseProgram(self.shader_program)
 
+        #glViewport(0, 0, window.width//2, window.height)
+
         for instance in self.instances:
             update_vao_vbo(instance[2], instance[0], instance[1])
-            uniforms_v2(self.shader_program, window, instance)
+            make_uniforms(self.shader_program, window, instance)
             draw_vao(instance[0], GL_TRIANGLE_STRIP, instance[2].shape[0])
 
-        #make_uniforms(self.shader_program, window, self.data)
-        #
-        #draw_vao(self.vao, GL_TRIANGLE_STRIP, self.data.shape[0])
+        #glViewport(window.width//2, 0, window.width, window.height)
 
-
+        #for instance in self.instances:
+        #    update_vao_vbo(instance[2], instance[0], instance[1])
+        #    make_uniforms(self.shader_program, window, instance)
+        #    draw_vao(instance[0], GL_TRIANGLE_STRIP, instance[2].shape[0])

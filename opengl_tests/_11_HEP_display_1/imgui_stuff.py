@@ -26,11 +26,6 @@ class ImguiStuff:
         imgui.new_frame()
         imgui.begin(self.appname)
 
-        # dt = 1F / xs
-        # 1/x = y/1
-        # xy = 1
-        # 1/x = y
-        # 1/dt = fps
         if not window.paused:
             if dt != 0:
                 imgui.text(f'{1/dt:.4g} fps')

@@ -13,6 +13,6 @@ class OpenGLStuff:
         # setup of all elements to be rendered on each loop
         pass
 
-    def per_render_loop(self):
+    def per_render_loop(self, window):
         # must draw and perform every other on-loop action
         pass
