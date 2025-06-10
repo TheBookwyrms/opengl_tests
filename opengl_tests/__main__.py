@@ -13,8 +13,7 @@ from opengl_tests._12_viewports_clicking.display import Display
 
 
 if __name__ == "__main__":
-    app = Display() # _12_
-    #app = Window() # _11_
+    #app = Display() # _12_
     #app = UsesShaders() # _10_
     #app = ParticleLife() # _9_
     #app = PointsStuff() # _8_

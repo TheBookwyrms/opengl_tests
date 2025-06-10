@@ -50,7 +50,7 @@ class Display:
         self.things_list = []
 
         self.thing_1 = BaseThing()
-        self.thing_1.setup(GL_POINTS, (0, self.width, 0, self.height))
+        self.thing_1.setup(GL_POINTS, (0, 0, self.width//2, self.height))
         self.things_list.append(self.thing_1)
 
 

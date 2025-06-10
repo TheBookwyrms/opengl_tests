@@ -70,7 +70,7 @@ class BaseThing:
     def set_draw_type(self, draw_type):
         self.draw_type = draw_type
         
-    def set_viewport(self, left, right, bottom, top):
+    def set_viewport(self, left, bottom, right, top):
         self.left, self.right = left, right
         self.bottom, self.top = bottom, top
 

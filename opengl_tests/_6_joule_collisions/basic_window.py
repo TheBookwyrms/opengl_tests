@@ -154,7 +154,7 @@ class CollisionFunctions:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
 
-        f_of_x_y = lambda x, y: np.cos(x) + np.cos(y)
+        f_of_x_y = lambda x, y: np.cos(x)**2 + np.cos(y)**2
         df_dx = lambda x: -np.sin(x)
         df_dy = lambda y: -np.sin(y)
         func = GroundFunction(f_of_x_y)
