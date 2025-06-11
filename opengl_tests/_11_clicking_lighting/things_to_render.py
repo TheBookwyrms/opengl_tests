@@ -12,15 +12,49 @@ class ThingsToRender:
     def setup(self, shaders):
 
 
-        self.back_wall = np.array([
-            [-10, 10,  10, 0.75, 0.15, 0.15, 1],
-            [ 10, 10,  10, 0.75, 0.15, 0.15, 1],
-            [ 10, 10, -10, 0.75, 0.15, 0.15, 1],
-            [ 10, 10, -10, 0.75, 0.15, 0.15, 1],
-            [-10, 10, -10, 0.75, 0.15, 0.15, 1],
-            [-10, 10,  10, 0.75, 0.15, 0.15, 1],
-        ], dtype=np.float32)
-        self.back_wall_vao = create_vao(self.back_wall)
+        def iterate_square(two_triangles, n_subdivisions):
+            def make_n_subdivisions(triangle, n):
+                def add_rgba(triangle, colour, opacity):
+                    return np.array([
+                        [*triangle[0][:3], *colour, opacity, *triangle[0][7:]],
+                        [*triangle[1][:3], *colour, opacity, *triangle[1][7:]],
+                        [*triangle[2][:3], *colour, opacity, *triangle[2][7:]],
+                    ])
+                if n==0:
+                    return add_rgba(triangle, (np.random.random(),)*3, 1)
+                
+                new = []
+
+                bl, t, br = triangle
+
+                mid_l, mid_r, mid_b = (bl+t)/2, (t+br)/2, (br+bl)/2,
+
+                new.extend(make_n_subdivisions(np.array([bl, mid_l, mid_b]), n-1)) # bl
+                new.extend(make_n_subdivisions(np.array([mid_l, t, mid_r]), n-1)) # t
+                new.extend(make_n_subdivisions(np.array([mid_b, mid_r, br]), n-1)) # br
+                new.extend(make_n_subdivisions(np.array([mid_l, mid_r, mid_b]), n-1)) # c
+
+                return new
+            
+            iterated = []
+
+            for triangle in two_triangles:
+                iterated.extend(make_n_subdivisions(triangle, n_subdivisions))
+
+            return iterated
+
+
+
+
+        self.back_wall = np.array(iterate_square([np.array([
+            [-10, 10,  10, 0.75, 0.15, 0.15, 1, 0, -1, 0],
+            [ 10, 10,  10, 0.75, 0.15, 0.15, 1, 0, -1, 0],
+            [ 10, 10, -10, 0.75, 0.15, 0.15, 1, 0, -1, 0]]), np.array([
+            [ 10, 10, -10, 0.75, 0.15, 0.15, 1, 0, -1, 0],
+            [-10, 10, -10, 0.75, 0.15, 0.15, 1, 0, -1, 0],
+            [-10, 10,  10, 0.75, 0.15, 0.15, 1, 0, -1, 0]])],
+            n_subdivisions=6), dtype=np.float32)
+        self.back_wall_vao = create_vao(self.back_wall, store_normals=True)
 
 
         self.origin = np.array([0, 0, 0, 0, 0, 0, 1],dtype=np.float32)
@@ -119,21 +153,20 @@ class RoundedOctahedron(Item):
 
         return np.array([t1, t2, t3, t4, t5, t6, t7, t8])
     
-    def make_n_subdivisions(self, triangle, n, new_triangles=[]):
+    def make_n_subdivisions(self, triangle, n):
         if n==0:
             return self.add_rgba(triangle, (np.random.random(),)*3, 1)
 
         new = []
-        #new.extend(new_triangles)
 
         bl, t, br = triangle
 
         mid_l, mid_r, mid_b = (bl+t)/2, (t+br)/2, (br+bl)/2,
 
-        new.extend(self.make_n_subdivisions(np.array([bl, mid_l, mid_b]), n-1, new)) # bl
-        new.extend(self.make_n_subdivisions(np.array([mid_l, t, mid_r]), n-1, new)) # t
-        new.extend(self.make_n_subdivisions(np.array([mid_b, mid_r, br]), n-1, new)) # br
-        new.extend(self.make_n_subdivisions(np.array([mid_l, mid_r, mid_b]), n-1, new)) # c
+        new.extend(self.make_n_subdivisions(np.array([bl, mid_l, mid_b]), n-1)) # bl
+        new.extend(self.make_n_subdivisions(np.array([mid_l, t, mid_r]), n-1)) # t
+        new.extend(self.make_n_subdivisions(np.array([mid_b, mid_r, br]), n-1)) # br
+        new.extend(self.make_n_subdivisions(np.array([mid_l, mid_r, mid_b]), n-1)) # c
 
         return new
 

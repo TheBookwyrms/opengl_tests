@@ -49,6 +49,9 @@ class CameraShaders(Matrices):
 
         self.ambient_light_strength = 0.1
         self.ambient_light_colour = np.array([24, 158, 0])/255
+        
+        self.diffuse_strength = 0.5
+        self.diffuse_base = 0.2
 
         self.light_source_pos = np.array([0, -20, 0], dtype=np.float32) # in world space
         self.light_source_pos = np.array([0, -10, 0], dtype=np.float32) # in world space
@@ -250,12 +253,25 @@ class CameraShaders(Matrices):
 
         self.set_uniform_float("ambient_strength", self.ambient_light_strength, shader_program)
         self.set_uniform_vec3("ambient_colour", self.ambient_light_colour, shader_program)
-        self.set_uniform_vec3("light_source_pos", self.light_source_pos, shader_program)
+
+        self.set_uniform_float("diffuse_strength", self.diffuse_strength, shader_program)
+        self.set_uniform_float("diffuse_base", self.diffuse_base, shader_program)
+        world_light_pos = (self.get_world_transform() @
+                           np.array([*self.light_source_pos, 1]))[:-1]
+        self.set_uniform_vec3("light_source_pos", world_light_pos, shader_program)
+        #self.set_uniform_vec3("light_source_pos", self.light_source_pos, shader_program)
         self.set_uniform_vec3("light_source_colour", self.light_source_colour, shader_program)
         self.set_uniform_float("specular_strength", self.specular_strength, shader_program)
             # camera transform is from origin to camera
             # inv is direction from camera to origin
         inv_cam_transform = np.linalg.inv(self.get_camera_tranform())
-        cam_view_pos = np.array(inv_cam_transform @ np.array([1, 1, 1, 1]))[:-1]
+        cam_view_pos = np.array(self.get_camera_tranform() @ np.array([0, 0, 32, 1]))[:-1]
         self.set_uniform_vec3("camera_viewpos", cam_view_pos, shader_program)
         self.set_uniform_float("specular_power", self.specular_power, shader_program)
+
+        light_y_transform = np.eye(4)
+        light_y_transform[0, 0] = -1
+        light_y_transform[1, 1] = -1
+        #light_y_transform[2, 2] = -1
+        #light_y_transform[3, 3] = -1
+        self.set_uniform_mat4("light_y_transform", light_y_transform, shader_program)
