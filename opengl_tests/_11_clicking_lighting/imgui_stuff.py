@@ -8,13 +8,9 @@ import numpy as np
 
 
 class ImguiStuff:
-    def __init__(self):
-        pass
-
     def in_use(self):
         if self.imgui_use != None and imgui.get_io().want_capture_mouse:
             return True
-
 
     def initiate_imgui(self, window, appname):
         self.appname = appname
@@ -22,7 +18,7 @@ class ImguiStuff:
         imgui.get_io().display_size = 100,100
         self.imgui_use = GlfwRenderer(window, attach_callbacks=False)
 
-    def imgui_box(self, window):
+    def imgui_box(self, camera):
         imgui.new_frame()
         imgui.begin(self.appname)
 
@@ -31,16 +27,16 @@ class ImguiStuff:
         # xy = 1
         # 1/x = y
         # 1/dt = fps
-        if not window.paused:
-            if window.dt != 0:
-                imgui.text(f'{1/window.dt:.4g} fps')
+        if not camera.paused:
+            if camera.dt != 0:
+                imgui.text(f'{1/camera.dt:.2f} fps')
         else:
-            imgui.text(f"paused ({1/window.dt:.4g} fps)")
+            imgui.text(f"paused ({1/camera.dt:.2f} fps)")
 
-        imgui.text(f'{window.angle_x:.3g}, {window.angle_y:.3g}, {window.angle_z:.3g} : angles x, y, z')
-        imgui.text(f'{window.pan_x:.3g}, {window.pan_y:.3g}, {window.pan_z:.3g} : pan x, y, z')
-        imgui.text(f'{window.zoom:.3g} : zoom level')
-        imgui.text(f'{window.aspect_ratio:.3g} : aspect ratio')
+        imgui.text(f'{camera.angle_x:.1f}, {camera.angle_y:.1f}, {camera.angle_z:.1f} : angles x, y, z')
+        imgui.text(f'{camera.pan_x:.2f}  , {camera.pan_y:.2f}  , {camera.pan_z:.2f} : pan x, y, z')
+        imgui.text(f'{camera.zoom:.2f} : zoom level')
+        imgui.text(f'{camera.aspect_ratio}')
 
         imgui.end()
 

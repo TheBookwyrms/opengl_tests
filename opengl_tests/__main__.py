@@ -8,12 +8,11 @@ from opengl_tests._7_true_base_for_copying.window import *
 from opengl_tests._8_points.basic_window import *
 from opengl_tests._9_particle_life.basic_window import *
 from opengl_tests._10_shaders.basic_window import *
-from opengl_tests._11_HEP_display_1.window import *
-from opengl_tests._12_viewports_clicking.display import Display
+from opengl_tests._11_clicking_lighting.window import MoreShadersOpenGL
 
 
 if __name__ == "__main__":
-    #app = Display() # _12_
+    app = MoreShadersOpenGL() # _11_
     #app = UsesShaders() # _10_
     #app = ParticleLife() # _9_
     #app = PointsStuff() # _8_
